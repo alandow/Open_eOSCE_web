@@ -1,0 +1,6 @@
+upload_max_filesize=100M
+post_max_filesize=100M
+extension = fileinfo.so; {{{ The following lines were automatically added by DreamHost
+zend_extension=opcache.so
+; }}} That's all from DreamHost
+
