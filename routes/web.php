@@ -15,7 +15,9 @@ Route::get('/', 'HomeController@index');
 
 Route::get('/home', 'HomeController@home')->name('home');
 
-Route::get('/contact', 'HomeController@contact');
+// stuff for the public web. Probably won't need this for a private deployment
+Route::get('/contact', 'ContactController@contactUS');
+Route::post('/contact', ['as'=>'contact.store','uses'=>'ContactController@contactUSPost']);
 
 Route::get('/blog', 'HomeController@blog');
 
