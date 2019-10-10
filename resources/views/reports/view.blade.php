@@ -7,7 +7,9 @@
 @section('content')
     {{--Some extra libraries for inline editing--}}
     <link rel="stylesheet" href="{{URL::asset('resources/assets/css/bootstrap-editable.css')}}">
+    <link rel="stylesheet" href="{{URL::asset('resources/assets/css/Chart.css')}}">
     <script src="{{ URL::asset('resources/assets/js/bootstrap-editable.min.js') }}"></script>
+    <script src="{{ URL::asset('resources/assets/js/Chart.bundle.js') }}"></script>
     <style>
 
 
@@ -99,76 +101,121 @@
 
     <!-- Tabs -->
     {!! Breadcrumbs::render('report.show', $exam) !!}
-    <div style="padding-left: 15px; padding-right: 15px; margin-top: 0">
-        <ul class="nav nav-tabs" id="tabslabels">
-            <li class="active"><a data-toggle="tab" href='#resultstab'>Results</a></li>
-            <li><a data-toggle="tab" href='#statstab'>Statistics/Analysis</a></li>
+    <fieldset style="width: 100%">
+        <legend>Report for {{$exam->name}}
 
-        </ul>
-        <div class="tab-content">
-            <div id="resultstab" class="tab-pane active">
-                <fieldset style="width: 90%">
-                    <legend>Results for {{$exam->name}}
+        </legend>
+        <div style="padding-left: 15px; padding-right: 15px; margin-top: 0">
+            <ul class="nav nav-tabs" id="tabslabels">
+                <li class="active"><a data-toggle="tab" href='#resultstab'>Results</a></li>
+                <li><a data-toggle="tab" href='#statstab'>Statistics/Analysis</a></li>
+                <li><a data-toggle="tab" href='#feedbacktab'>Feedback</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="resultstab" class="tab-pane active">
+                    <fieldset style="width: 90%">
+                        <legend>Results
 
-                    </legend>
+                        </legend>
 
-                    <table class="table table-striped">
-                        <thead class="thead-inverse">
-                        <tr>
-                            <th class="headerSortable header"> @sortablelink ('name', 'Student name')</th>
-                            <th class="headerSortable header"> @sortablelink ('owner_id', 'Student ID')</th>
-                            <th class="headerSortable header"> @sortablelink ('score', 'Score')</th>
-                            <th class="headerSortable header"> @sortablelink ('group', 'Group')</th>
-                            <th class="headerSortable header"> @sortablelink ('start_datetime', 'Submitted at')</th>
-                            <th class="headerSortable header"> @sortablelink ('status', 'Examiner')</th>
-                        </tr>
-                        </thead>
-                        @foreach ($exam->sortable_student_exam_submissions as $results)
-
+                        <table class="table table-striped">
+                            <thead class="thead-inverse">
                             <tr>
-                                <td>
-                                    <a href="{{URL::asset('/report/session/'.$results->id)}}">
-                                        {{$results->studentname}}
-                                    </a>
-                                </td>
-                                <td>
-                                    {{$results->student->studentid}}
-                                </td>
-                                <td>
-                                    {{$results->total}}/{{$maxscore}}
-                                </td>
-                                <td>
-                                    {{$results->groupcode}}
-                                </td>
-                                <td>
-                                    {{date_format($results->created_at, 'd/m/Y H:i:s A')}}
-                                </td>
+                                <th class="headerSortable header"> @sortablelink ('studentname', 'Student name')</th>
+                                <th class="headerSortable header"> @sortablelink ('owner_id', 'Student ID')</th>
+                                <th class="headerSortable header"> @sortablelink ('total', 'Score')</th>
+                                <th class="headerSortable header"> @sortablelink ('groupcode', 'Group')</th>
+                                <th class="headerSortable header"> @sortablelink ('created_at', 'Submitted at')</th>
+                                <th class="headerSortable header"> @sortablelink ('created_by', 'Examiner')</th>
+                            </tr>
+                            </thead>
+                            @foreach ($results as $result)
 
-                                <td>
-                                    {{$results->created_by}}
-                                </td>
+                                <tr>
+                                    <td>
+                                        <a href="{{URL::asset('/report/session/'.$result->id)}}">
+                                            {{$result->studentname}}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{$result->student->studentid}}
+                                    </td>
+                                    <td>
+                                        {{$result->total}}/{{$maxscore}}
+                                    </td>
+                                    <td>
+                                        {{$result->groupcode}}
+                                    </td>
+                                    <td>
+                                        {{date_format($result->created_at, 'd/m/Y H:i:s A')}}
+                                    </td>
+
+                                    <td>
+                                        {{$result->created_by}}
+                                    </td>
 
 
-                        @endforeach
-                    </table>
+                            @endforeach
+                        </table>
 
-                </fieldset>
-            </div>
-            <div id="statstab" class="tab-pane">
-                <fieldset style="width: 90%">
-                    <legend>Statistics
-                        <span style="font-size: 0.5em;">
+                    </fieldset>
+                </div>
+                <div id="statstab" class="tab-pane">
+                    <fieldset style="width: 90%">
+                        <legend>At a glance
+
+                        </legend>
+                        (chart here)
+                        <table class="table table-striped">
+                            <tr>
+                                <td>Number of students (<i>n</i>)</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Average</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Median</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Standard Deviation</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Range</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Minimum</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Maximum</td>
+                                <td></td>
+                            </tr>
+                        </table>
+
+
+                    </fieldset>
+                </div>
+                <div id="feedbacktab" class="tab-pane">
+                    <fieldset style="width: 90%">
+                        <legend>Feedback
+                            <span style="font-size: 0.5em;">
 
 
                             </span>
-                    </legend>
+                        </legend>
 
-                </fieldset>
+                    </fieldset>
+                </div>
+
+
             </div>
-
-
         </div>
-    </div>
+    </fieldset>
 
     <div id="showresultsdialog" class="modal fade" role="dialog">
         <div class="modal-dialog">

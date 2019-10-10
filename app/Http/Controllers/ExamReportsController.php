@@ -7,6 +7,7 @@ use App\Exam_instance_item;
 use App\Exam_instance_item_item;
 use App\Group;
 use App\Http\Requests;
+use App\SortableExam_results;
 use App\Student;
 use App\Student_exam_submission;
 use App\User;
@@ -27,6 +28,7 @@ class ExamReportsController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('persistence')->only(['index','show']);
     }
 
     public function index(Request $request)
@@ -48,9 +50,11 @@ class ExamReportsController extends Controller
     public function show($id)
     {
         $exam = Exam_instance::findOrFail($id);
-        $users = User::all();
-        $students = Student::all();
+        $results = SortableExam_results::where('exam_instances_id', '=', $id)->sortable()->get();
+       // $users = User::all();
+        //    $students = Student::all();
         $groups = Group::all();
+
         // get max score here
         $maxscore = 0;
         foreach ($exam->exam_instance_items()->scorable()->get() as $item) {
@@ -61,10 +65,11 @@ class ExamReportsController extends Controller
         if ($exam->exists) {
             return view("reports.view")
                 ->with('exam', $exam)
-                ->with('users', $users)
+                // ->with('users', $users)
                 ->with('groups', $groups)
                 ->with('maxscore', $maxscore)
-                ->with('students', $students);
+                ->with('results', $results);
+            //->with('students', $students);
         } else {
             return redirect('home');
         }
@@ -87,14 +92,14 @@ class ExamReportsController extends Controller
         $score = 0;
         $maxscore = 0;
         foreach ($exam->student_exam_submission_items as $item) {
-                if ($item->item->exclude_from_total != 1) {
-                    if($item->selecteditem) {
+            if ($item->item->exclude_from_total != 1) {
+                if ($item->selecteditem) {
 //                        print_r($item->selecteditem);
 //                        print ('<br/><hr/>');
-                        $score += $item->selecteditem->value;
-                        $maxscore += $item->item->items->max('value');
-                    }
+                    $score += $item->selecteditem->value;
+                    $maxscore += $item->item->items->max('value');
                 }
+            }
 
         }
 

@@ -37,6 +37,7 @@ class Exam_instance extends Model
     ];
 
     protected $sortable = ['name',
+        'studentname',
         'unit_id',
         'owned_by_id',
         'created_at',
@@ -128,6 +129,14 @@ class Exam_instance extends Model
         static::deleting(function ($instance) {
             Userlog::create(['crud'=>'delete', 'action'=>'Exam Instance', 'old_value'=>$instance->name])->save();
         });
+    }
+
+    // sortable
+    public function studentnameSortable($query, $direction)
+    {
+        return $query->join('students', 'students.id', '=', 'sortable_exam_results.student_id')
+            ->orderBy('student_id', $direction)
+            ->select('sortable_exam_results.*');
     }
 }
 

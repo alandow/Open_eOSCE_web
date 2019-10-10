@@ -63,5 +63,7 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        //            From https://stephenreescarter.net/using-laravel-5-middleware-for-parameter-persistence/
+        'persistence'=>\App\Http\Middleware\ParameterPersistence::class,
     ];
 }

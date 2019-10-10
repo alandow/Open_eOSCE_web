@@ -30,7 +30,7 @@ class SortableExam_results extends Model
         'created_by',
         'start_datetime',
         'end_datetime',
-        'status',
+        'groupcode'
     ];
 
     public function student()

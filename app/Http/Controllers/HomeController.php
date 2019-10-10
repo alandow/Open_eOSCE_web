@@ -25,7 +25,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('welcome');
+        if(Auth::check()){
+         return $this->home();
+        }else {
+            return view('welcome');
+        }
     }
 
     public function home()
