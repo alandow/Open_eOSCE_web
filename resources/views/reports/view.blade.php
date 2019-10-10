@@ -12,91 +12,60 @@
     <script src="{{ URL::asset('resources/assets/js/Chart.bundle.js') }}"></script>
     <style>
 
-
-        #questionstbl tr.placeholder:before {
-            position: absolute;
-            color: red;
-            content: '\279e';
-            /** Define arrowhead **/
-        }
+        canvas { max-width: 200px; }
+    
     </style>
     <script>
 
-        $.fn.editable.defaults.mode = 'inline';
-
-        var currenteditingid = 0;
 
         $(document).ready(function () {
 
-            $('select').select2();
-
-
-            $('.datepicker').datepicker({
-                format: "dd/mm/yyyy",
-                autoclose: true,
-            });
-
-            if (location.hash.substr(0, 2) == "#!") {
-                $("a[href='#" + location.hash.substr(2) + "']").tab("show");
-            }
-
-            $("a[data-toggle='tab']").on("shown.bs.tab", function (e) {
-                var hash = $(e.target).attr("href");
-                if (hash.substr(0, 1) == "#") {
-                    location.replace("#!" + hash.substr(1));
+            var ctx = document.getElementById("myChart").getContext('2d');
+            var dataValues = [12, 19, 3, 5];
+            var dataLabels = [0, 1, 2, 3, 4];
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: dataLabels,
+                    datasets: [{
+                        label: 'Group A',
+                        data: dataValues,
+                        backgroundColor: 'rgba(255, 99, 132, 1)',
+                    }]
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            display: false,
+                            barPercentage: 1.3,
+                            ticks: {
+                                max: 3,
+                            }
+                        }, {
+                            display: true,
+                            ticks: {
+                                autoSkip: false,
+                                max: 4,
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero:true
+                            }
+                        }]
+                    }
                 }
             });
 
-            $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
-                currenteditingid = $(this).data('id');
-                switch ($(this).data('target')) {
-
-                    default:
-                        currenteditingid = -1;
-                        currentdeletingid = -1;
-                        break;
-                }
-
-            });
 
 
-            $('.modalform').on('shown.bs.modal', function () {
-                $(this).find("form").validator();
-            });
+
+
 
 
         });
 
 
-        // populates a form with data returned from Laravel
-        function populate(frm, data) {
-            $.each(data, function (key, value) {
-                var $ctrl = $('[name=' + key + ']', frm);
-                if ($ctrl.is("select")) {
-                    $ctrl.select2('val', value);
-                } else {
-
-                    switch ($ctrl.attr("type")) {
-                        case "text" :
-                        case "hidden":
-                            $ctrl.val(value);
-                            break;
-                        case "radio" :
-                        case "checkbox":
-                            $ctrl.each(function () {
-                                if ($(this).attr('value') == value) {
-                                    $(this).attr("checked", value);
-                                }
-                            });
-                            break;
-
-                        default:
-                            $ctrl.val(value);
-                    }
-
-                }
-            });
-        }
     </script>
 
     <!-- Tabs -->
@@ -165,7 +134,7 @@
                         <legend>At a glance
 
                         </legend>
-                        (chart here)
+                        <canvas id="myChart" width="20" height="20"></canvas>
                         <table class="table table-striped">
                             <tr>
                                 <td>Number of students (<i>n</i>)</td>
