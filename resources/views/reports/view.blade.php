@@ -12,61 +12,12 @@
     <script src="{{ URL::asset('resources/assets/js/Chart.bundle.js') }}"></script>
     <style>
 
-        canvas { max-width: 200px; }
-    
+        canvas {
+            max-width: 200px;
+        }
+
     </style>
-    <script>
 
-
-        $(document).ready(function () {
-
-            var ctx = document.getElementById("myChart").getContext('2d');
-            var dataValues = [12, 19, 3, 5];
-            var dataLabels = [0, 1, 2, 3, 4];
-            var myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: dataLabels,
-                    datasets: [{
-                        label: 'Group A',
-                        data: dataValues,
-                        backgroundColor: 'rgba(255, 99, 132, 1)',
-                    }]
-                },
-                options: {
-                    scales: {
-                        xAxes: [{
-                            display: false,
-                            barPercentage: 1.3,
-                            ticks: {
-                                max: 3,
-                            }
-                        }, {
-                            display: true,
-                            ticks: {
-                                autoSkip: false,
-                                max: 4,
-                            }
-                        }],
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero:true
-                            }
-                        }]
-                    }
-                }
-            });
-
-
-
-
-
-
-
-        });
-
-
-    </script>
 
     <!-- Tabs -->
     {!! Breadcrumbs::render('report.show', $exam) !!}
@@ -84,7 +35,6 @@
                 <div id="resultstab" class="tab-pane active">
                     <fieldset style="width: 90%">
                         <legend>Results
-
                         </legend>
 
                         <table class="table table-striped">
@@ -122,7 +72,7 @@
                                     <td>
                                         {{$result->created_by}}
                                     </td>
-
+                                </tr>
 
                             @endforeach
                         </table>
@@ -131,40 +81,43 @@
                 </div>
                 <div id="statstab" class="tab-pane">
                     <fieldset style="width: 90%">
-                        <legend>At a glance
-
+                        <legend>Overall
                         </legend>
-                        <canvas id="myChart" width="20" height="20"></canvas>
-                        <table class="table table-striped">
-                            <tr>
-                                <td>Number of students (<i>n</i>)</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Average</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Median</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Standard Deviation</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Range</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Minimum</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Maximum</td>
-                                <td></td>
-                            </tr>
-                        </table>
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                                <canvas id="myChart" width="20" height="20"></canvas>
+                            </div>
+                            <div class="col-md-9">
+                                <table class="table table-striped">
+                                    <tr>
+                                        <td>Number of students (<i>n</i>)</td>
+                                        <td>{{$stats['overall']['n']}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Average</td>
+                                        <td>{{$stats['overall']['mean']}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Median</td>
+                                        <td>{{$stats['overall']['median']}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Standard Deviation</td>
+                                        <td>{{$stats['overall']['stdev']}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Minimum</td>
+                                        <td>{{$stats['overall']['min']}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Maximum</td>
+                                        <td>{{$stats['overall']['max']}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+
 
 
                     </fieldset>
@@ -254,6 +207,70 @@
         </div>
     </div>
 
+    <script>
+
+        //  var chartOptions =
+        $(function () {
+           setTimeout(showChart, 500);
+        });
+
+function showChart(){
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var dataValues = [
+        @for ($i = 0; $i<$maxscore+1; $i++)
+                @if (in_array($i,array_keys($stats['overall']['hist_array'])))
+                {{$stats['overall']['hist_array'][$i]}}
+                @else
+            0
+        @endif
+        @if ($i<($maxscore)) , @endif
+        @endfor
+    ];
+    var dataLabels = [0
+        @for ($i = 1; $i<$maxscore+1; $i++)
+        ,{{$i}}
+        @endfor]
+
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dataLabels,
+            datasets: [{
+                label: 'Count',
+                data: dataValues,
+                backgroundColor: 'rgba(255, 99, 132, 1)',
+            }]
+        },
+        options:{
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: 'Overall'
+            },
+            scales: {
+                yAxes:
+                    [{
+                        stepSize: 1,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Count'
+                        }
+                    }],
+                xAxes:
+                    [{
+                        stepSize: 1,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Score'
+                        }
+                    }]
+            }
+        }
+    });
+}
+    </script>
 
 
 
