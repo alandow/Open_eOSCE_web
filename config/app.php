@@ -196,6 +196,7 @@ return [
 
         LaravelQRCode\Providers\QRCodeServiceProvider::class,
 
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*

@@ -153,6 +153,8 @@ Route::get('examinationmedia/thumb/{id}', 'ExaminationInstancesMediaController@t
 Route::resource('report', 'ExamReportsController');
 // show an individual session
 Route::get('report/session/{sessionid}', 'ExamReportsController@detail')->name('report.session');
+// download a
+Route::get('report/{id}/excelsummary', 'ExamReportsController@getSummaryReportAsExcel');
 
 // updating
 Route::resource('submissionitem', 'StudentExamSubmissionItemController');

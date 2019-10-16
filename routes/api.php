@@ -19,7 +19,7 @@ Route::post('/check', function (Request $request) {
     $returnVal = (($request->input('client_id') == $client->id)
         && ($request->input('client_secret')== $client->secret))
         ? ['status' => true, 'sysname' => \Illuminate\Support\Facades\Config::get('app.name')] : ['status' => false];
-    return ($returnVal);
+    return $returnVal;
 });
 
 // logout
