@@ -1,7 +1,7 @@
 @extends('layouts.nomenu')
 
 @section('title')
-    {{$exam->name}} results
+    {{$submission->name}} results
 @endsection
 
 @section('content')
@@ -203,13 +203,13 @@
     </script>
 
     <!-- Tabs -->
-    {!! Breadcrumbs::render('report.session', $exam) !!}
+    {!! Breadcrumbs::render('report.session', $submission) !!}
     {{--{!! Breadcrumbs::render('report.session', 3) !!}--}}
     <div style="padding-left: 15px; padding-right: 15px; margin-top: 0">
         <fieldset style="width: 90%">
             <fieldset style="width: 100%">
-                <legend style="">Report for: {{$exam->student->fname}} {{$exam->student->lname}}
-                    , {{$exam->student->studentid}}<br/>
+                <legend style="">Report for: {{$submission->student->fname}} {{$submission->student->lname}}
+                    , {{$submission->student->studentid}}<br/>
                     Score:{{$score}}/{{$maxscore}}
                     <br/>
 
@@ -225,13 +225,13 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($definition->exam_instance_items as $exam_instance_item)
+                    @foreach($definition->exam_instance_items as $submission_instance_item)
 
-                        @if(($exam_instance_item->heading)==1)
+                        @if(($submission_instance_item->heading)==1)
                             <tr style="background-color: #7ab800">
                                 <td colspan="4">
 
-                                    <h5> {{$exam_instance_item->label}}</h5>
+                                    <h5> {{$submission_instance_item->label}}</h5>
 
                                 </td>
 
@@ -244,45 +244,45 @@
 
                                     <a href="#" data-toggle="modal"
                                        data-target="#edititemdialog"
-                                       data-id="{{$exam->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->id}}">
+                                       data-id="{{$submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->id}}">
 
-                                        {{$exam->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->item->label}}
+                                        {{$submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->item->label}}
 
-                                        @if($exam_instance_item->exclude_from_total=='1')
+                                        @if($submission_instance_item->exclude_from_total=='1')
                                             (Formative)
                                         @endif
                                     </a>
                                     {{--Check to see if there's changes--}}
-                                    @if($exam->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->changelog->count()>0)
+                                    @if($submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->changelog->count()>0)
                                         <a href="#" style="color: coral" data-toggle="modal"
                                            data-target="#changelogdialog"
-                                           data-id="{{$exam->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->id}}"><i
+                                           data-id="{{$submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->id}}"><i
                                                     class="fa fa-exclamation-circle"></i>(Updated)</a>
                                     @endif
                                 </td>
                                 <td>
-                                    @if($exam->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->selecteditem)
-                                        {{$exam->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->selecteditem->label}}
+                                    @if($submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->selecteditem)
+                                        {{$submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->selecteditem->label}}
                                     @else
                                         (not shown)
                                         @endif
                                     {{--{{$item->selecteditem->label}}--}}
                                 </td>
                                 <td>
-                                    @if($exam->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->selecteditem)
-                                        {{$exam->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->selecteditem->value}}
+                                    @if($submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->selecteditem)
+                                        {{$submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->selecteditem->value}}
                                     @else
                                         (not shown)
                                     @endif
                                 </td>
                                 <td>
-                                    {{$exam->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->comments}}
+                                    {{$submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->comments}}
                                     {{--{{$item->comments}}--}}
                                 </td>
                         @endif
                     @endforeach
 
-                    {{--@foreach ($exam->student_exam_submission_items as $item)--}}
+                    {{--@foreach ($submission->student_exam_submission_items as $item)--}}
 
                     {{--<tr>--}}
                     {{--<td>--}}

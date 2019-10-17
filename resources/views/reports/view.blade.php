@@ -34,7 +34,7 @@
             <div class="tab-content">
                 <div id="resultstab" class="tab-pane active">
                     <div class="col-md-12" style="margin-top: 10px; padding-left: 0px">
-                        <button type="button" class="btn btn-primary btn-sm">Export Results to Excel</button>
+                        <a href="{{URL::asset('/report/'.$exam->id.'/excelsummary')}}" type="button" class="btn btn-primary btn-sm">Export Results to Excel</a>
 
                     </div>
                     <fieldset style="width: 90%">
@@ -126,6 +126,48 @@
                     </fieldset>
                     <fieldset style="width: 90%">
                         <legend>Results by assessor
+                        </legend>
+                        @foreach($exam->examiners as $examiner)
+                            <div class="col-md-12">
+                                {{$examiner->name}}
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-3">
+                                    <canvas id="examiner_chart_{{$examiner->id}}" width="20" height="20"></canvas>
+                                </div>
+                                <div class="col-md-9">
+                                    <table class="table table-striped">
+                                        <tr>
+                                            <td>Number of students (<i>n</i>)</td>
+                                            <td>{{$stats['examiners'][$examiner->id]['n']}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Average</td>
+                                            <td>{{$stats['examiners'][$examiner->id]['mean']}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Median</td>
+                                            <td>{{$stats['examiners'][$examiner->id]['median']}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Standard Deviation</td>
+                                            <td>{{$stats['examiners'][$examiner->id]['stdev']}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Minimum</td>
+                                            <td>{{$stats['examiners'][$examiner->id]['min']}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Maximum</td>
+                                            <td>{{$stats['examiners'][$examiner->id]['max']}}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        @endforeach
+                    </fieldset>
+                    <fieldset style="width: 90%">
+                        <legend>Results by group
                         </legend>
                         @foreach($exam->examiners as $examiner)
                             <div class="col-md-12">
