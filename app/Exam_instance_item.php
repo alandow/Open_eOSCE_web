@@ -37,6 +37,8 @@ class Exam_instance_item extends Model
         return $this->hasMany('App\Exam_instance_item_item', 'exam_instance_items_id', 'id');
     }
 
+
+
     public function scopeScorable($query){
         $q= $query->whereRaw("exclude_from_total is null")
             ->whereRaw("heading is null");

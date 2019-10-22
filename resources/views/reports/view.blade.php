@@ -22,8 +22,8 @@
     <!-- Tabs -->
     {!! Breadcrumbs::render('report.show', $exam) !!}
     <fieldset style="width: 100%">
-        <legend>Report for {{$exam->name}}
-
+        <legend>Report for {{$exam->name}}&nbsp;
+            <a href="{{URL::asset('/report/'.$exam->id.'/excelsummary')}}" type="button" class="btn btn-primary">Export to Excel&nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i></a>
         </legend>
         <div style="padding-left: 15px; padding-right: 15px; margin-top: 0">
             <ul class="nav nav-tabs" id="tabslabels">
@@ -33,14 +33,10 @@
             </ul>
             <div class="tab-content">
                 <div id="resultstab" class="tab-pane active">
-                    <div class="col-md-12" style="margin-top: 10px; padding-left: 0px">
-                        <a href="{{URL::asset('/report/'.$exam->id.'/excelsummary')}}" type="button" class="btn btn-primary btn-sm">Export Results to Excel</a>
 
-                    </div>
                     <fieldset style="width: 90%">
                         <legend>Results
                         </legend>
-
                         <table class="table table-striped">
                             <thead class="thead-inverse">
                             <tr>
@@ -84,9 +80,7 @@
                     </fieldset>
                 </div>
                 <div id="statstab" class="tab-pane">
-                    <div class="col-md-12" style="margin-top: 10px; padding-left: 0px">
-                        <button type="button" class="btn btn-primary btn-sm">Export Analysis to Excel</button>
-                    </div>
+
                     <fieldset style="width: 90%">
                         <legend>Overall
                         </legend>

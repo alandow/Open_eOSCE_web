@@ -42,8 +42,6 @@ class Student_exam_submission_item extends Model
     }
 
 
-
-
 // logging
     protected static function boot()
     {
