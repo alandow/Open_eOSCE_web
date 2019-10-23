@@ -4,7 +4,7 @@
 @section('menu')
 
     <li>
-        <a href="{{ url('/examemails') }}"><i class="fa fa-fw fa-cog"></i>Email templates</a>
+        <a href="{{ url('/reportemails') }}"><i class="fa fa-fw fa-cog"></i>Email templates</a>
     </li>
 @endsection
 

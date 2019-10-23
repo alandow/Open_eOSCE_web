@@ -8,6 +8,7 @@
     {{--Some extra libraries for inline editing--}}
     <link rel="stylesheet" href="{{URL::asset('resources/assets/css/bootstrap-editable.css')}}">
     <link rel="stylesheet" href="{{URL::asset('resources/assets/css/Chart.css')}}">
+    <link rel="stylesheet" href="{{ URL::asset('resources/assets/css/awesome-bootstrap-checkbox.css') }}">
     <script src="{{ URL::asset('resources/assets/js/bootstrap-editable.min.js') }}"></script>
     <script src="{{ URL::asset('resources/assets/js/Chart.bundle.js') }}"></script>
     <style>
@@ -23,7 +24,8 @@
     {!! Breadcrumbs::render('report.show', $exam) !!}
     <fieldset style="width: 100%">
         <legend>Report for {{$exam->name}}&nbsp;
-            <a href="{{URL::asset('/report/'.$exam->id.'/excelsummary')}}" type="button" class="btn btn-primary">Export to Excel&nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i></a>
+            <a href="{{URL::asset('/report/'.$exam->id.'/excelsummary')}}" type="button" class="btn btn-primary">Export
+                to Excel&nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i></a>
         </legend>
         <div style="padding-left: 15px; padding-right: 15px; margin-top: 0">
             <ul class="nav nav-tabs" id="tabslabels">
@@ -206,12 +208,10 @@
                 <div id="feedbacktab" class="tab-pane">
                     <fieldset style="width: 90%">
                         <legend>Feedback
-                            <span style="font-size: 0.5em;">
 
-
-                            </span>
                         </legend>
-
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#setupemaildialog">Set up email</button>
+                        <button class="btn btn-primary">Test email</button>
                     </fieldset>
                 </div>
 
@@ -220,41 +220,24 @@
         </div>
     </fieldset>
 
-    <div id="showresultsdialog" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Update Item</h4>
-                </div>
-                <div class="modal-body">
-                    {!! Form::open( ['class'=>'form-horizontal', 'id'=>'edititemform'])!!}
 
 
+   <div id="setupemaildialog" class="modal fade" role="dialog">
+       <div class="modal-dialog" >
+           <div class="modal-content">
+               <div class="modal-header">
+                   <button type="button" class="close" data-dismiss="modal">&times;</button>
+                   <h4 class="modal-title">Setup email</h4>
+               </div>
+               <div class="modal-body">
+                   {!! Form::open()!!}
+                   @include('reports.form.setupemailform')
+                   {!! Form::close() !!}
+               </div>
+           </div>
+       </div>
+   </div>
 
-                    {!! Form::close() !!}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="editresultsdialog" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Update Item</h4>
-                </div>
-                <div class="modal-body">
-                    {!! Form::open( ['class'=>'form-horizontal', 'id'=>'edititemform'])!!}
-
-
-
-                    {!! Form::close() !!}
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div id="deleteitemdialog" class="modal fade" role="dialog">
         <div class="modal-dialog" style="width: 300px">
@@ -273,20 +256,7 @@
     </div>
 
 
-    {{--Placeholder--}}
-    <div id="placeholderdialog" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
 
-                    <h4 class="modal-title">Placeholder</h4>
-                </div>
-                <div class="modal-body">
-                    Placeholder dialog
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
 

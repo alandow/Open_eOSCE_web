@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Emails_template;
 use App\Exam_instance;
 use App\Exam_instance_item;
 use App\Exam_instance_item_item;
@@ -56,10 +57,10 @@ class ExamReportsController extends Controller
     {
         $exam = Exam_instance::findOrFail($id);
         $results = SortableExam_results::where('exam_instances_id', '=', $id)->sortable()->get();
-        //dd($results->pluck('total'));
-        // $users = User::all();
-        //    $students = Student::all();
+
         $groups = Group::all();
+        // emails templates. Later, maybe
+        $emailtemplates = Emails_template::all();
         // get max score here
         $maxscore = 0;
         foreach ($exam->exam_instance_items()->scorable()->get() as $item) {
@@ -89,6 +90,7 @@ class ExamReportsController extends Controller
         if ($exam->exists) {
             return view("reports.view")
                 ->with('exam', $exam)
+                ->with('emailtemplates', $emailtemplates)
                 // ->with('users', $users)
                 ->with('groups', $groups)
                 ->with('maxscore', $maxscore)

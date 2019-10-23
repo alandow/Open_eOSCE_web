@@ -72,13 +72,15 @@ Breadcrumbs::register('report.show', function ($breadcrumbs, $exam) {
     $breadcrumbs->parent('report.index');
     $breadcrumbs->push("{$exam->name}", route('report.show', $exam->id));
 });
-//Breadcrumbs::register('report.session', function ($breadcrumbs, $session) {
-//    $breadcrumbs->parent('report.show');
-//    $breadcrumbs->push("{$session->exam_instance->name}", route('report.session', $session->id));
-//});
+
 Breadcrumbs::register('report.session', function ($breadcrumbs, $session) {
     $breadcrumbs->parent('report.show', $session->exam_instance);
     $breadcrumbs->push("{$session->student->fname} {$session->student->lname}", route('report.session', $session));
+});
+
+Breadcrumbs::register('reportemails.index', function ($breadcrumbs) {
+    $breadcrumbs->parent('report.index');
+    $breadcrumbs->push("Feedback email templates", route('reportemails.index' ));
 });
 
 // setups

@@ -156,6 +156,16 @@ Route::get('report/session/{sessionid}', 'ExamReportsController@detail')->name('
 // download a report in Excel format
 Route::get('report/{id}/excelsummary', 'ExamReportsController@getReportAsExcel');
 
+//feedback emails
+// templates
+Route::get('reportemails', 'ReportEmailsController@index')->name('reportemails.index');
+Route::get('reportemails/{id}', 'ReportEmailsController@show');
+
+Route::post('reportemails/create', 'ReportEmailsController@store');
+Route::post('reportemails/{id}/update', 'ReportEmailsController@update');
+Route::post('reportemails/destroy', 'ReportEmailsController@destroy');
+
+
 
 // updating
 Route::resource('submissionitem', 'StudentExamSubmissionItemController');
