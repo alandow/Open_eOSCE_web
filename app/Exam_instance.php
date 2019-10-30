@@ -34,6 +34,8 @@ class Exam_instance extends Model
         'unit_id',
         'archived_at',
         'last_updated_by_id',
+        'email_parameters',
+        'email_template_id'
     ];
 
     protected $sortable = ['name',
@@ -57,10 +59,10 @@ class Exam_instance extends Model
 //        return $this->belongsTo('App\Criteria_scale_type', 'id', 'assessment_criteria_scale_id');
 //    }
 //
-//    public function unit()
-//    {
-//        return $this->belongsTo('App\Unit_lookup', 'unit_id', 'id');
-//    }
+    public function feedback_template()
+    {
+        return $this->hasOne('App\Emails_template', 'id', 'email_template_id');
+    }
 //
 
     public function owner()

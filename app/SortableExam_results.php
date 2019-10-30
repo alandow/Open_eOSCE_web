@@ -43,5 +43,9 @@ class SortableExam_results extends Model
         return $this->hasOne('App\Group', 'id', 'group_id');
     }
 
+    public function submission(){
+        return $this->hasOne('App\Student_exam_submission', 'id', 'id');
+    }
+
 }
 

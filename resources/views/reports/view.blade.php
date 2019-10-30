@@ -210,8 +210,46 @@
                         <legend>Feedback
 
                         </legend>
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#setupemaildialog">Set up email</button>
-                        <button class="btn btn-primary">Test email</button>
+                        <div class="col-ms-12">
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#setupemaildialog">Set up
+                                email
+                            </button>
+                            <table class="table table-striped table-condensed">
+                                <tr>
+                                    <th>Email template</th>
+                                    <td> <a href="#" style="color: coral" data-toggle="modal"
+                                            data-target="#showfeedbackpreviewdialog">{{$exam->feedback_template->label}}</a></td>
+                                </tr>
+                                <tr>
+                                    <th>Items</th>
+                                    <td>
+                                        @foreach($exam->exam_instance_items as $exam_instance_item)
+                                            <div class="col-sm-12">
+                                                @if($exam_instance_item->heading!='1')
+                                                    @if(in_array($exam_instance_item->id, json_decode($exam->email_parameters)->exclude_items))
+
+                                                        <i class="fa fa-times fa-2x" style="color: red"
+                                                           aria-hidden="true"></i>
+                                                    @else
+                                                        <i class="fa fa-check fa-2x" style="color: green"
+                                                           aria-hidden="true"></i>
+                                                    @endif
+                                                    {{$exam_instance_item->label}}
+                                                    @if($exam_instance_item->exclude_from_total=='1')
+                                                        (formative)
+                                                    @endif
+                                                @endif
+                                            </div>
+
+                                        @endforeach
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-ms-12">
+                            <button class="btn btn-primary">Test email</button>
+                        </div>
                     </fieldset>
                 </div>
 
@@ -222,21 +260,21 @@
 
 
 
-   <div id="setupemaildialog" class="modal fade" role="dialog">
-       <div class="modal-dialog" >
-           <div class="modal-content">
-               <div class="modal-header">
-                   <button type="button" class="close" data-dismiss="modal">&times;</button>
-                   <h4 class="modal-title">Setup email</h4>
-               </div>
-               <div class="modal-body">
-                   {!! Form::open()!!}
-                   @include('reports.form.setupemailform')
-                   {!! Form::close() !!}
-               </div>
-           </div>
-       </div>
-   </div>
+    <div id="setupemaildialog" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Setup email</h4>
+                </div>
+                <div class="modal-body">
+                    {!! Form::open()!!}
+                    @include('reports.form.setupemailform')
+                    {!! Form::close() !!}
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <div id="deleteitemdialog" class="modal fade" role="dialog">
@@ -255,18 +293,44 @@
         </div>
     </div>
 
-
+    <div id="showfeedbackpreviewdialog" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg" >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Feedback template: {{$exam->feedback_template->label}}</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <div class="col-sm-12"><label class="'control-label text-left">Subject:<br/></label></div>
+                        <div class="col-sm-12">
+                            {{str_replace(['{name}', '{exam}'], [$results[0]->studentname, $exam->name], $exam->feedback_template->subject)}}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12"><label class="'control-label text-left">Body:<br/></label></div>
+                        <div class="col-sm-12">
+                            {!!str_replace(['{name}', '{exam}', '{results}'], [$results[0]->studentname, $exam->name, $sample],$exam->feedback_template->text)!!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <script>
 
         //  var chartOptions =
-        $(function () {
+        $(document).ready(function () {
+
+            //select2
+            $('select').select2();
+
             // Set up tab persistence across reloads
             if (location.hash.substr(0, 2) == "#!") {
                 $("a[href='#" + location.hash.substr(2) + "']").tab("show");
             }
-
 
             $("a[data-toggle='tab']").on("shown.bs.tab", function (e) {
                 var hash = $(e.target).attr("href");
@@ -275,6 +339,33 @@
                 }
             });
 
+            $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+                switch ($(this).data('target')) {
+                    case '#setupemaildialog':
+                        //getEmailSetupDetails();
+                        break;
+                    default:
+                        currenteditingid = -1;
+                        currentdeletingid = -1;
+                        break;
+                }
+
+            });
+
+            $('#setupemaildialog').submit(function (event) {
+                console.log('sending setup email params')
+                // cancels the form submission
+                event.preventDefault();
+                $(this).modal('hide');
+                //var vars = $("#edititemform").find("form").serializeArray();
+                var vars = $(this).find("form").serializeArray();
+                vars.push({name: 'id', value: '{{$exam->id}}'});
+                waitingDialog.show();
+                console.log(vars)
+                submitUpdateEmailSetupForm(vars);
+            });
+
+            // little delay to show charts. Doesn't work without it.
             setTimeout(function () {
                 showChart('myChart', [@for ($i = 0; $i<$maxscore+1; $i++)
                         @if (in_array($i,array_keys($stats['overall']['hist_array'])))
@@ -297,6 +388,42 @@
                 @endforeach
             }, 500);
         });
+
+        function submitUpdateEmailSetupForm(vars) {
+            $.ajax({
+                url: '{!! URL::to('')!!}/report/{{$exam->id}}/setfeedbacksetup',
+                type: 'post',
+                data: vars,
+                error: function (jqXHR, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    alert(errorThrown);
+                },
+                success: function (data) {
+                    waitingDialog.hide();
+                    if (data.status.toString() == "0") {
+                        location.reload();
+                    } else {
+                        waitingDialog.hide();
+                        alert('something went wrong with the update');
+                    }
+                }
+            });
+        }
+
+        function getEmailSetupDetails(id) {
+            // get the email setup parameters and display them
+            $.ajax({
+                url: '{!! URL::to('')!!}/report/{{$exam->id}}/getfeedbacksetup',
+                type: 'post',
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(errorThrown);
+                },
+                success: function (data) {
+
+                    waitingDialog.hide();
+                }
+            });
+        }
 
         var globaloptions = {
             legend: {

@@ -48,6 +48,7 @@
     44 => 'Laravel\\Passport\\PassportServiceProvider',
     45 => 'Barryvdh\\Cors\\ServiceProvider',
     46 => 'LaravelQRCode\\Providers\\QRCodeServiceProvider',
+    47 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
   ),
   'eager' => 
   array (
@@ -82,6 +83,7 @@
     28 => 'Laravel\\Passport\\PassportServiceProvider',
     29 => 'Barryvdh\\Cors\\ServiceProvider',
     30 => 'LaravelQRCode\\Providers\\QRCodeServiceProvider',
+    31 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
   ),
   'deferred' => 
   array (

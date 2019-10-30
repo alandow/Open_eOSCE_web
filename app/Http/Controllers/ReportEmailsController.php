@@ -64,4 +64,6 @@ class ReportEmailsController extends Controller
             'status' => \App\Emails_template::destroy($input['id'])
         );
     }
+
+
 }

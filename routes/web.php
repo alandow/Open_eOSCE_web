@@ -165,6 +165,8 @@ Route::post('reportemails/create', 'ReportEmailsController@store');
 Route::post('reportemails/{id}/update', 'ReportEmailsController@update');
 Route::post('reportemails/destroy', 'ReportEmailsController@destroy');
 
+// setup email feedback parameters
+Route::post('report/{id}/setfeedbacksetup', 'ExamReportsController@feedbacksetup');
 
 
 // updating

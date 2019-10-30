@@ -59,8 +59,49 @@ class ExamReportsController extends Controller
         $results = SortableExam_results::where('exam_instances_id', '=', $id)->sortable()->get();
 
         $groups = Group::all();
-        // emails templates. Later, maybe
+
+        // emails templates.
         $emailtemplates = Emails_template::all();
+        // a sample results
+        $sample_email_results = '<table><tr><th>Item</th><th>Result</th>';
+        if (json_decode($exam->email_parameters)->exclude_items_comments == '1') {
+            $sample_email_results .= '<th>Comments</th>';
+        }
+        $sample_email_results .= '</tr>';
+        foreach ($exam->exam_instance_items as $exam_instance_item) {
+            if (($exam_instance_item->heading) == 1) {
+                $sample_email_results .= "<tr>
+                                <td colspan=\"4\">
+
+                                    <h5> {$exam_instance_item->label}</h5>
+
+                                </td>
+
+                            </tr>";
+            } else {
+                if (!in_array($exam_instance_item->id, json_decode($exam->email_parameters)->exclude_items)) {
+                    $sample_email_results .= "<tr><td>" . $results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->item->label;
+                    if ($exam_instance_item->exclude_from_total == '1') {
+                        $sample_email_results .= "(Formative)";
+                    }
+                    $sample_email_results .= "</td><td>";
+
+                    if ($results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem)
+                        $sample_email_results .= $results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem->label;
+                } else {
+                    $sample_email_results .= "(not assessed)";
+                }
+                $sample_email_results .="</td>";
+                if (json_decode($exam->email_parameters)->exclude_items_comments == '1') {
+                    $sample_email_results .= '<td>' . $results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->comments . '</td>';
+                }
+                $sample_email_results .="</tr>";
+            }
+        }
+
+        $sample_email_results .="</table>";
+
+
         // get max score here
         $maxscore = 0;
         foreach ($exam->exam_instance_items()->scorable()->get() as $item) {
@@ -95,7 +136,8 @@ class ExamReportsController extends Controller
                 ->with('groups', $groups)
                 ->with('maxscore', $maxscore)
                 ->with('results', $results)
-                ->with('stats', $stats);
+                ->with('stats', $stats)
+            ->with('sample', $sample_email_results);
             //->with('students', $students);
         } else {
             return redirect('home');
@@ -104,7 +146,8 @@ class ExamReportsController extends Controller
 
     }
 
-    public function detail($sessionid)
+    public
+    function detail($sessionid)
     {
         // if (Gate::denies('view_exam')) {
         //  return array(
@@ -165,9 +208,7 @@ class ExamReportsController extends Controller
             'status' => $status,
         );
         return $response;
-        return array(
-            'status' => $status,
-        );
+
     }
 
 
@@ -191,7 +232,8 @@ class ExamReportsController extends Controller
      * @param type $session_ID
      * @return PHPExcel an Excel spreadsheet containing a summary report of the results of an assessment session
      */
-    public function getReportAsExcel($id)
+    public
+    function getReportAsExcel($id)
     {
         // kill the debugbar briefly
         \Debugbar::disable();
@@ -452,7 +494,7 @@ class ExamReportsController extends Controller
 
         $k = 3;
         foreach ($exam->exam_instance_items as $question) {
-            if (($question->heading != '1')&&($question->no_comment!='1')) {
+            if (($question->heading != '1') && ($question->no_comment != '1')) {
                 $overallCommentsWorksheet->setCellValue('A' . $k, "{$question->label}");
                 $responses = Student_exam_submission_item::where('exam_instance_items_id', '=', $question->id)->get();
                 $k++;
@@ -478,6 +520,35 @@ class ExamReportsController extends Controller
         $writer->save('php://output');
     }
 
+//////////////////////////////////////////////////////////////////////////////
+///
+/// Email feedback
+///
+/// //////////////////////////////////////////////////////////////////////////
+
+    // set up feedback parameters
+    public
+    function feedbacksetup(Request $request)
+    {
+        //dd($request);
+        $input = $request::all();
+
+        $exam = Exam_instance::find($input['id']);
+
+        $exam->email_template_id = $input['template_id'];
+        $email_params = ['exclude_items' => $input['exclude']];
+        if (isset($input['exclude_items_comments'])) {
+            $email_params['exclude_items_comments'] = $input['exclude_items_comments'];
+        }
+        if (isset($input['exclude_overall_comments'])) {
+            $email_params['exclude_overall_comments'] = $input['exclude_overall_comments'];
+        }
+        $exam->email_parameters = json_encode($email_params);
+        $exam->save();
+        return array(
+            'status' => 0,
+        );
+    }
 
 
     /////////////////////////////////////////////////////////////////////////
@@ -487,19 +558,22 @@ class ExamReportsController extends Controller
     /// ////////////////
 
     // Function to calculate square of value - mean
-    private function sd_square($x, $mean)
+    private
+    function sd_square($x, $mean)
     {
         return pow($x - $mean, 2);
     }
 
 // Function to calculate standard deviation (uses sd_square)
-    private function sd($array)
+    private
+    function sd($array)
     {
         // square root of sum of squares devided by N-1
         return sqrt(array_sum(array_map(array($this, "sd_square"), $array, array_fill(0, count($array), (array_sum($array) / count($array))))) / (count($array) - 1));
     }
 
-    private function hist_array($step_size, $inputArray)
+    private
+    function hist_array($step_size, $inputArray)
     {
         $step_size = $step_size;
         $histogramArray = array();
@@ -513,7 +587,8 @@ class ExamReportsController extends Controller
         return $histogramArray;
     }
 
-    private function calculate_median($array)
+    private
+    function calculate_median($array)
     {
         rsort($array);
         $middle = round(count($array), 2);
@@ -521,7 +596,8 @@ class ExamReportsController extends Controller
         return $total;
     }
 
-    private function median($arr)
+    private
+    function median($arr)
     {
         sort($arr);
         $count = count($arr); //count the number of values in array
