@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Emails_template;
 use App\Exam_instance;
 use App\Exam_instance_item;
 use App\Exam_instance_item_item;
 use App\Group;
 use App\Http\Requests;
+use App\Mail\StudentExamFeedback;
 use App\Student;
+use App\Student_exam_submission;
 use App\User;
 use App\Userlog;
 use Illuminate\Support\Facades\DB;
@@ -499,25 +502,27 @@ class ExamInstanceController extends Controller
 
     /////////////////////////////////////////////////////////////////////////////////////
     ///
-    /// In-house examinatyion
+    /// In-browser examination
     ///
     /// ///////////////////////////////////////////////////////////////////////////////
 
-    public function   showInternalExam($id)
-{
-    $exam = Exam_instance::findOrFail($id);
+    public function showInternalExam($id)
+    {
+        $exam = Exam_instance::findOrFail($id);
 //        $users = User::all();
 //        $students = Student::all();
-    // dd($student->examinations_sessions[0]->responses);
-    if ($exam->exists) {
-        return view("assess.view")
-            ->with('exam', $exam);
+        // dd($student->examinations_sessions[0]->responses);
+        if ($exam->exists) {
+            return view("assess.view")
+                ->with('exam', $exam);
 
-    } else {
-        return redirect('home');
+        } else {
+            return redirect('home');
+        }
     }
 
 
-}
+
+
 
 }

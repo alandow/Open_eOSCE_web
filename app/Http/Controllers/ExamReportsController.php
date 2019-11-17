@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Emails_log;
 use App\Emails_template;
 use App\Exam_instance;
 use App\Exam_instance_item;
 use App\Exam_instance_item_item;
 use App\Group;
 use App\Http\Requests;
+use App\Jobs\SendStudentExamFeedback;
+use App\Mail\StudentExamFeedback;
 use App\SortableExam_results;
 use App\Student;
 use App\Student_exam_submission;
 use App\Student_exam_submission_item;
 use App\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Input;
@@ -548,6 +552,91 @@ class ExamReportsController extends Controller
         return array(
             'status' => 0,
         );
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    ///
+    //email
+    ///
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    public
+    function sendemail($submissionid, Request $request)
+    {
+        $input = $request::all();
+        //dd($submissionid);
+
+        $submission = Student_exam_submission::find($submissionid);
+        $template = Emails_template::find($submission->exam_instance->email_template_id);
+       // dd($input);
+        try {
+            // construct mail to student
+            $email = new StudentExamFeedback($submission, $template);
+
+            // dispatch to the job queue
+            dispatch(new SendStudentExamFeedback($email, $submission->student->id, Auth::user()->id, $template, $submission->id, isset($input['testing'])?true:false))->delay(now()->addMinutes(10));
+          //  dispatch(new SendStudentExamFeedback($email, Auth::user()->id, Auth::user()->id, $template, $submission->id))->delay(now()->addMinutes(10));;
+            //   dispatch(new SendSetupEmail($email, Auth::user()->id, Auth::user()->id, $template, $id));
+            // log success
+            $response = array(
+                'status' => '0',
+            );
+
+        } catch (\Exception $e) {
+            dd($e);
+
+            // handle failure
+            $response = array(
+                'status' => '1',
+            );
+        }
+        return $response;
+    }
+
+// bulk email
+//    public
+//    function sendbulkemail(Request $request)
+//    {
+//        $input = $request::all();
+//        //  dd($input);
+//        $template = Emails_template::find($input['template_id']);
+//
+//        // get ids
+//        $ids = explode(',', $input['ids']);
+//        foreach ($ids as $id) {
+//
+//            $unit = Offering::find($id);
+//            if (isset($unit)) {
+//                //   try {
+//                if (isset($unit->coordinator->id)) {
+//                    $email = new UnitSetupEmail($unit, $template);
+//                    // dispatch to the job queue
+//                    dispatch(new SendSetupEmail($email, (isset($input['testing']) ? Auth::user()->id : $unit->coordinator->id), Auth::user()->id, $template, $id));
+//                    // mail to unit coordinator
+//                    //  Mail::to('alandow@une.edu.au')->send(new UnitSetupEmail($unit, $template), $unit, $template);
+//                    // log success
+//                    $log = new Emails_log();
+//                    $log->email_id = $input['template_id'];
+//                    $log->instance_id = $id;
+//                    $log->sent_to_id = $unit->coordinator->id;
+//                    $log->sent_by_id = Auth::user()->id;
+//                    $log->context = 'offeringsetup';
+//                    $log->fulltext = $email->getfulltext();
+//                    $log->save();
+//                    $response = array(
+//                        'status' => '0',
+//                    );
+//                }
+//            }
+//
+//            //
+//        }
+//        return $response;
+//    }
+
+    public
+    function getemail($id, $emailid)
+    {
+        return Emails_log::find($emailid);
     }
 
 

@@ -105,6 +105,10 @@ class Exam_instance extends Model
         return $this->belongsToMany('App\Student', 'student_exam_instances', 'exam_instances_id', 'students_id')->withPivot('id', 'group_id');
     }
 
+    public function GetEmailLogAttribute(){
+        return Emails_log::where(['instance_id'=> $this->id])->get();
+    }
+
     public function scopeScorableitems($query){
         return $query-> whereHas('exam_instance_items', function ($query)  {
             $query->where('exclude_from_total', '<>', '1')

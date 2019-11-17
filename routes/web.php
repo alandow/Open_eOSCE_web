@@ -153,6 +153,8 @@ Route::get('examinationmedia/thumb/{id}', 'ExaminationInstancesMediaController@t
 Route::resource('report', 'ExamReportsController');
 // show an individual session
 Route::get('report/session/{sessionid}', 'ExamReportsController@detail')->name('report.session');
+// send an individual email
+Route::get('report/session/{submissionid}/email', 'ExamReportsController@sendemail');
 // download a report in Excel format
 Route::get('report/{id}/excelsummary', 'ExamReportsController@getReportAsExcel');
 
@@ -167,6 +169,7 @@ Route::post('reportemails/destroy', 'ReportEmailsController@destroy');
 
 // setup email feedback parameters
 Route::post('report/{id}/setfeedbacksetup', 'ExamReportsController@feedbacksetup');
+
 
 
 // updating

@@ -167,6 +167,24 @@
             });
         }
 
+        function sendEmail() {
+            // get the item  changelog and display it
+            $.ajax({
+                url: '{!! URL::to('')!!}/report/session/{{$submission->id}}/email/',
+                type: 'GET',
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(errorThrown);
+                },
+                success: function (data) {
+                    console.log(data);
+                    alert(data);
+
+
+                    waitingDialog.hide();
+                }
+            });
+        }
+
         function placeholder() {
             alert('Do something here')
         }
@@ -208,12 +226,20 @@
     <div style="padding-left: 15px; padding-right: 15px; margin-top: 0">
         <fieldset style="width: 90%">
             <fieldset style="width: 100%">
-                <legend style="">Report for: {{$submission->student->fname}} {{$submission->student->lname}}
-                    , {{$submission->student->studentid}}<br/>
-                    Score:{{$score}}/{{$maxscore}}
-                    <br/>
+                <div class="col-md-12" style="padding-left: 0px; margin-left: 0px">
+                    <div class="col-md-4">
+                        <legend style="">Report for: {{$submission->student->fname}} {{$submission->student->lname}}
+                            , {{$submission->student->studentid}}<br/>
+                            Score:{{$score}}/{{$maxscore}}
 
-                </legend>
+
+                        </legend>
+                    </div>
+                    <div class="col-md-8">
+                        <button class="btn bg-info" onclick="sendEmail()">Send feedback</button>
+                    </div>
+                </div>
+
 
                 <table class="table table-striped table-condensed" id="updateitemitemstbl">
                     <thead>
@@ -265,7 +291,7 @@
                                         {{$submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->selecteditem->label}}
                                     @else
                                         (not shown)
-                                        @endif
+                                    @endif
                                     {{--{{$item->selecteditem->label}}--}}
                                 </td>
                                 <td>
@@ -279,6 +305,7 @@
                                     {{$submission->student_exam_submission_items->where('exam_instance_items_id',$submission_instance_item->id)->first()->comments}}
                                     {{--{{$item->comments}}--}}
                                 </td>
+                            </tr>
                         @endif
                     @endforeach
 
@@ -304,8 +331,19 @@
 
 
                     {{--@endforeach--}}
+                    <tr style="background-color: #7ab800">
+                        <td colspan="4">
+                            Overall comments
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            {{$submission->comments}}
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
+
             </fieldset>
 
         </fieldset>
