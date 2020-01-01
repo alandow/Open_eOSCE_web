@@ -63,48 +63,55 @@ class ExamReportsController extends Controller
         $results = SortableExam_results::where('exam_instances_id', '=', $id)->sortable()->get();
 
         $groups = Group::all();
-
+        $users = User::all();
         // emails templates.
         $emailtemplates = Emails_template::all();
         // a sample results
-        $sample_email_results = '<table><tr><th>Item</th><th>Result</th>';
-        if (json_decode($exam->email_parameters)->exclude_items_comments == '1') {
+        $sample_email_results = '<table class="table table-sm"><tr><th>Item</th><th>Result</th>';
+        if (!json_decode($exam->email_parameters)->exclude_items_comments == '1') {
             $sample_email_results .= '<th>Comments</th>';
         }
         $sample_email_results .= '</tr>';
         foreach ($exam->exam_instance_items as $exam_instance_item) {
-            if (($exam_instance_item->heading) == 1) {
-                $sample_email_results .= "<tr>
-                                <td colspan=\"4\">
+            {
+
+                if (!in_array($exam_instance_item->id, json_decode($exam->email_parameters)->exclude_items)) {
+                    if (($exam_instance_item->heading) == 1) {
+                        $sample_email_results .= "<tr style=\"background-color: #7ab800\">
+                                <td colspan=\"4\" >
 
                                     <h5> {$exam_instance_item->label}</h5>
 
                                 </td>
 
                             </tr>";
-            } else {
-                if (!in_array($exam_instance_item->id, json_decode($exam->email_parameters)->exclude_items)) {
-                    $sample_email_results .= "<tr><td>" . $results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->item->label;
-                    if ($exam_instance_item->exclude_from_total == '1') {
-                        $sample_email_results .= "(Formative)";
-                    }
-                    $sample_email_results .= "</td><td>";
+                    } else {
+                        $sample_email_results .= "<tr><td>" . $results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->item->label;
+                        if ($exam_instance_item->exclude_from_total == '1') {
+                            $sample_email_results .= "(Formative)";
+                        }
+                        $sample_email_results .= "</td><td>";
 
-                    if ($results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem)
-                        $sample_email_results .= $results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem->label;
-                } else {
-                    $sample_email_results .= "(not assessed)";
+                        if ($results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem) {
+                            $sample_email_results .= $results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem->label;
+                        } else {
+                            $sample_email_results .= "(not assessed)";
+                        }
+                        $sample_email_results .= "</td>";
+                    }
+
+                    if (!json_decode($exam->email_parameters)->exclude_items_comments == '1') {
+                        $sample_email_results .= '<td><i>' . $results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->comments . '</i></td>';
+                    }
+                    $sample_email_results .= "</tr>";
                 }
-                $sample_email_results .="</td>";
-                if (json_decode($exam->email_parameters)->exclude_items_comments == '1') {
-                    $sample_email_results .= '<td>' . $results[0]->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->comments . '</td>';
-                }
-                $sample_email_results .="</tr>";
             }
         }
 
-        $sample_email_results .="</table>";
-
+        $sample_email_results .= "</table>";
+        if (!json_decode($exam->email_parameters)->exclude_overall_comments == '1') {
+            $sample_email_results .= '<p><strong>Overall comments:</strong><p><i>' . $results[0]->submission->comments. '</i></p>';
+        }
 
         // get max score here
         $maxscore = 0;
@@ -129,20 +136,25 @@ class ExamReportsController extends Controller
         }
 
         // get group stats
+        $stats['groups'] = [];
+        foreach ($exam->groupIDs as $group_id) {
+            $group_results = $results->filter(function ($value, $key) use ($group_id) {
+                return ($value->group_id == $group_id);
+            });
+            $group_hist = $this->hist_array(1, $group_results->pluck('total')->toArray());
+            $stats['groups'][$group_id] = ['n' => $group_results->count(), 'mean' => $group_results->avg('total'), 'median' => $this->median($group_results->pluck('total')->toArray()), 'stdev' => $this->sd($group_results->pluck('total')->toArray()), 'min' => $group_results->min('total'), 'max' => $group_results->max('total'), 'hist_array' => $group_hist];
+        }
 
-        //dd($overall_hist);
-        // dd($student->examinations_sessions[0]->responses);
         if ($exam->exists) {
             return view("reports.view")
                 ->with('exam', $exam)
+                ->with('users', $users)
                 ->with('emailtemplates', $emailtemplates)
-                // ->with('users', $users)
                 ->with('groups', $groups)
                 ->with('maxscore', $maxscore)
                 ->with('results', $results)
                 ->with('stats', $stats)
-            ->with('sample', $sample_email_results);
-            //->with('students', $students);
+                ->with('sample', $sample_email_results);
         } else {
             return redirect('home');
         }
@@ -559,22 +571,23 @@ class ExamReportsController extends Controller
     //email
     ///
     //////////////////////////////////////////////////////////////////////////////////////////////
+
     public
-    function sendemail($submissionid, Request $request)
+    function sendTestEmail($exam_instance_id, Request $request)
     {
         $input = $request::all();
-        //dd($submissionid);
-
-        $submission = Student_exam_submission::find($submissionid);
-        $template = Emails_template::find($submission->exam_instance->email_template_id);
-       // dd($input);
+        $exam_instance = Exam_instance::find($exam_instance_id);
+        $sample_submission = $exam_instance->student_exam_submissions->first();
+        $template = Emails_template::find($exam_instance->email_template_id);
+       //  dd($input);
         try {
             // construct mail to student
-            $email = new StudentExamFeedback($submission, $template);
+            $email = new StudentExamFeedback($sample_submission, $template);
 
             // dispatch to the job queue
-            dispatch(new SendStudentExamFeedback($email, $submission->student->id, Auth::user()->id, $template, $submission->id, isset($input['testing'])?true:false))->delay(now()->addMinutes(10));
-          //  dispatch(new SendStudentExamFeedback($email, Auth::user()->id, Auth::user()->id, $template, $submission->id))->delay(now()->addMinutes(10));;
+            //dispatch(new SendStudentExamFeedback($email, $input['send_to_id'], Auth::user()->id, $template, $sample_submission->id, isset($input['testing']) ? true : false))->delay(now()->addMinutes(1));
+            dispatch(new SendStudentExamFeedback($email, $sample_submission->student->id, Auth::user()->id, $template, $sample_submission->id, true, $input['send_to_id'] )) ->onQueue('emails_'.$exam_instance_id);
+            //  dispatch(new SendStudentExamFeedback($email, Auth::user()->id, Auth::user()->id, $template, $submission->id))->delay(now()->addMinutes(10));;
             //   dispatch(new SendSetupEmail($email, Auth::user()->id, Auth::user()->id, $template, $id));
             // log success
             $response = array(
@@ -590,6 +603,47 @@ class ExamReportsController extends Controller
             );
         }
         return $response;
+    }
+
+    public
+    function sendemail($submissionid, Request $request)
+    {
+        $input = $request::all();
+        //dd($submissionid);
+
+        $submission = Student_exam_submission::find($submissionid);
+        $template = Emails_template::find($submission->exam_instance->email_template_id);
+        // dd($input);
+        try {
+            // construct mail to student
+            $email = new StudentExamFeedback($submission, $template);
+
+            // dispatch to the job queue
+            dispatch(new SendStudentExamFeedback($email, $submission->student->id, Auth::user()->id, $template, $submission->id, isset($input['testing']) ? true : false))->delay(now()->addMinutes(10));
+            //  dispatch(new SendStudentExamFeedback($email, Auth::user()->id, Auth::user()->id, $template, $submission->id))->delay(now()->addMinutes(10));;
+            //   dispatch(new SendSetupEmail($email, Auth::user()->id, Auth::user()->id, $template, $id));
+            // log success
+            $response = array(
+                'status' => '0',
+            );
+
+        } catch (\Exception $e) {
+            dd($e);
+
+            // handle failure
+            $response = array(
+                'status' => '1',
+            );
+        }
+        return $response;
+    }
+
+    public function getPendingEmails($exam_instance_id){
+        $queuecount = DB::table('jobs')->where('queue', '=', 'emails_'.$exam_instance_id)->count();
+        return array(
+            'status' => '0',
+            'count'=> $queuecount
+        );
     }
 
 // bulk email

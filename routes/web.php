@@ -151,12 +151,17 @@ Route::get('examinationmedia/thumb/{id}', 'ExaminationInstancesMediaController@t
 
 // Reporting
 Route::resource('report', 'ExamReportsController');
+// send a test email
+Route::post('report/{id}/sendtestemail', 'ExamReportsController@sendTestEmail');
+// get a count of pending emails
+Route::get('report/{id}/getpendingemailcount', 'ExamReportsController@getPendingEmails');
+// download a report in Excel format
+Route::get('report/{id}/excelsummary', 'ExamReportsController@getReportAsExcel');
 // show an individual session
 Route::get('report/session/{sessionid}', 'ExamReportsController@detail')->name('report.session');
 // send an individual email
 Route::get('report/session/{submissionid}/email', 'ExamReportsController@sendemail');
-// download a report in Excel format
-Route::get('report/{id}/excelsummary', 'ExamReportsController@getReportAsExcel');
+
 
 //feedback emails
 // templates

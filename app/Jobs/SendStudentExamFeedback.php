@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Emails_log;
 use App\Mail\StudentExamFeedback;
 use App\Student;
 use App\User;
@@ -22,13 +23,14 @@ class SendStudentExamFeedback implements ShouldQueue
     protected $to_student_id;
     protected $from_id;
     protected $testing;
+    protected $testing_to_id;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(StudentExamFeedback $email, $to_student_id, $from_id, $template, $submission_id, $testing)
+    public function __construct(StudentExamFeedback $email, $to_student_id, $from_id, $template, $submission_id, $testing, $testing_to_id)
     {
         $this->email = $email;
         $this->template = $template;
@@ -36,6 +38,7 @@ class SendStudentExamFeedback implements ShouldQueue
         $this->to_student_id = $to_student_id;
         $this->from_id = $from_id;
         $this->testing = $testing;
+        $this->testing_to_id = $testing_to_id;
     }
 
     /**
@@ -45,9 +48,9 @@ class SendStudentExamFeedback implements ShouldQueue
      */
     public function handle()
     {
-//dd($this->testing);
+//dd(User::find($this->testing_to_id)->email);
         if($this->testing){
-            Mail::to(User::find($this->from_id)->email)->send($this->email);
+            Mail::to(User::find($this->testing_to_id)->email)->send($this->email);
         }else{
             Mail::to(Student::find($this->to_id)->email)->send($this->email);
         }

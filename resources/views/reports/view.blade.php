@@ -165,39 +165,39 @@
                     <fieldset style="width: 90%">
                         <legend>Results by group
                         </legend>
-                        @foreach($exam->examiners as $examiner)
+                        @foreach($exam->groupIDs as $group_id)
                             <div class="col-md-12">
-                                {{$examiner->name}}
+                                {{\App\Group::find($group_id)->text}} ({{\App\Group::find($group_id)->code}})
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-3">
-                                    <canvas id="examiner_chart_{{$examiner->id}}" width="20" height="20"></canvas>
+                                    <canvas id="group_chart_{{$group_id}}" width="20" height="20"></canvas>
                                 </div>
                                 <div class="col-md-9">
                                     <table class="table table-striped">
                                         <tr>
                                             <td>Number of students (<i>n</i>)</td>
-                                            <td>{{$stats['examiners'][$examiner->id]['n']}}</td>
+                                            <td>{{$stats['groups'][$group_id]['n']}}</td>
                                         </tr>
                                         <tr>
                                             <td>Average</td>
-                                            <td>{{$stats['examiners'][$examiner->id]['mean']}}</td>
+                                            <td>{{$stats['groups'][$group_id]['mean']}}</td>
                                         </tr>
                                         <tr>
                                             <td>Median</td>
-                                            <td>{{$stats['examiners'][$examiner->id]['median']}}</td>
+                                            <td>{{$stats['groups'][$group_id]['median']}}</td>
                                         </tr>
                                         <tr>
                                             <td>Standard Deviation</td>
-                                            <td>{{$stats['examiners'][$examiner->id]['stdev']}}</td>
+                                            <td>{{$stats['groups'][$group_id]['stdev']}}</td>
                                         </tr>
                                         <tr>
                                             <td>Minimum</td>
-                                            <td>{{$stats['examiners'][$examiner->id]['min']}}</td>
+                                            <td>{{$stats['groups'][$group_id]['min']}}</td>
                                         </tr>
                                         <tr>
                                             <td>Maximum</td>
-                                            <td>{{$stats['examiners'][$examiner->id]['max']}}</td>
+                                            <td>{{$stats['groups'][$group_id]['max']}}</td>
                                         </tr>
                                     </table>
                                 </div>
@@ -207,13 +207,22 @@
                 </div>
                 <div id="feedbacktab" class="tab-pane">
                     <fieldset style="width: 90%">
-                        <legend>Feedback
-
+                        <legend>Feedback <span id="pending_email_count"></span>
                         </legend>
+                        <div class="col-ms-12" style="padding-bottom: 5px">
+                            <div class="btn-group">
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#setupemaildialog"
+                                        style="margin-right: 5px">Set up email
+                                </button>
+                                <button data-toggle="modal" data-target="#testemaildialog" class="btn btn-warning"
+                                        style="margin-right: 5px">Test email
+                                </button>
+                                <button class="btn btn-danger" onclick="testEmail()">Send feedback email</button>
+                            </div>
+                        </div>
+
                         <div class="col-ms-12">
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#setupemaildialog">Set up
-                                email
-                            </button>
+
                             <table class="table table-striped table-condensed">
                                 <tr>
                                     <th>Email template</th>
@@ -226,20 +235,24 @@
                                     <td>
                                         @foreach($exam->exam_instance_items as $exam_instance_item)
                                             <div class="col-sm-12">
-                                                @if($exam_instance_item->heading!='1')
-                                                    @if(in_array($exam_instance_item->id, json_decode($exam->email_parameters)->exclude_items))
 
-                                                        <i class="fa fa-times fa-2x" style="color: red"
-                                                           aria-hidden="true"></i>
-                                                    @else
-                                                        <i class="fa fa-check fa-2x" style="color: green"
-                                                           aria-hidden="true"></i>
-                                                    @endif
-                                                    {{$exam_instance_item->label}}
-                                                    @if($exam_instance_item->exclude_from_total=='1')
-                                                        (formative)
-                                                    @endif
+                                                @if(in_array($exam_instance_item->id, json_decode($exam->email_parameters)->exclude_items))
+
+                                                    <i class="fa fa-times fa-2x" style="color: red"
+                                                       aria-hidden="true"></i>
+                                                @else
+                                                    <i class="fa fa-check fa-2x" style="color: green"
+                                                       aria-hidden="true"></i>
                                                 @endif
+                                                @if($exam_instance_item->heading=='1')
+                                                    <strong>{{$exam_instance_item->label}} (Heading)</strong>
+                                                @else
+                                                    {{$exam_instance_item->label}}
+                                                @endif
+                                                @if($exam_instance_item->exclude_from_total=='1')
+                                                    (formative)
+                                                @endif
+
                                             </div>
 
                                         @endforeach
@@ -272,9 +285,7 @@
                                 </tr>
                             </table>
                         </div>
-                        <div class="col-ms-12">
-                            <button class="btn btn-primary" onclick="testEmail()">Test email</button>
-                        </div>
+
                     </fieldset>
                 </div>
 
@@ -312,6 +323,50 @@
                 <div class="modal-body">
                     {!! Form::open()!!}
                     @include('form_common.deletedialog')
+                    {!! Form::close() !!}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="testemaildialog" class="modal fade" role="dialog">
+        <div class="modal-dialog" >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Send test email</h4>
+                </div>
+                <div class="modal-body">
+                    {!! Form::open()!!}
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            {!! Form::label('send_to_id', 'Send test email to', ['class'=>'control-label   text-left']) !!}
+                        </div>
+                        <div class="col-sm-12">
+                            {!! Form::select('send_to_id', $users->pluck('name', 'id'), null, ['style'=>"width: 300px", 'class'=>'form-control', 'required']) !!}
+                        </div>
+
+                    </div>
+
+                    <div class="form-group row">
+                        {!! Form::submit('Send test email', ['class'=>'btn btn-primary form-control']) !!}
+                    </div>
+                    {!! Form::close() !!}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmemaildialog" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 300px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Really send feedback?</h4>
+                </div>
+                <div class="modal-body">
+                    {!! Form::open()!!}
+
                     {!! Form::close() !!}
                 </div>
             </div>
@@ -390,6 +445,18 @@
                 submitUpdateEmailSetupForm(vars);
             });
 
+            $('#testemaildialog').submit(function (event) {
+                console.log('sending setup email params')
+                // cancels the form submission
+                event.preventDefault();
+                $(this).modal('hide');
+                //var vars = $("#edititemform").find("form").serializeArray();
+                var vars = $(this).find("form").serializeArray();
+                vars.push({name: 'id', value: '{{$exam->id}}'});
+                waitingDialog.show();
+                console.log(vars)
+                sendTestEmail(vars);
+            });
             // little delay to show charts. Doesn't work without it.
             setTimeout(function () {
                 showChart('myChart', [@for ($i = 0; $i<$maxscore+1; $i++)
@@ -411,7 +478,21 @@
                     @if ($i<($maxscore)) , @endif
                     @endfor]);
                 @endforeach
+                // group specific stats
+                @foreach($exam->groupIDs as  $group_id)
+                showChart('group_chart_{{$group_id}}', [@for ($i = 0; $i<$maxscore+1; $i++)
+                        @if (in_array($i,array_keys($stats['overall']['hist_array'])))
+                        {{$stats['groups'][$group_id]['hist_array'][$i]}}
+                        @else
+                    0
+                    @endif
+                    @if ($i<($maxscore)) , @endif
+                    @endfor]);
+                @endforeach
             }, 500);
+
+            // watch for jobs
+            var tid = setInterval(checkPendingEmails, 1000);
         });
 
         function submitUpdateEmailSetupForm(vars) {
@@ -446,6 +527,53 @@
                 success: function (data) {
 
                     waitingDialog.hide();
+                }
+            });
+        }
+
+        function sendTestEmail(vars) {
+            $.ajax({
+                url: '{!! URL::to('')!!}/report/{{$exam->id}}/sendtestemail',
+                type: 'post',
+                data: vars,
+                error: function (jqXHR, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    alert(errorThrown);
+                },
+                success: function (data) {
+                    waitingDialog.hide();
+                    if (data.status.toString() == "0") {
+                        location.reload();
+                    } else {
+                        waitingDialog.hide();
+                        alert('something went wrong with the operation');
+                    }
+                }
+            });
+        }
+
+        function checkPendingEmails(){
+            $.ajax({
+                url: '{!! URL::to('')!!}/report/{{$exam->id}}/getpendingemailcount',
+                type: 'get',
+                error: function (jqXHR, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    alert(errorThrown);
+                },
+                success: function (data) {
+                //    waitingDialog.hide();
+                    if (data.status.toString() == "0") {
+                        if(data.count>0){
+                            $("#pending_email_count").html(" ("+data.count+' emails pending...)')
+                        }
+                        else{
+                            $("#pending_email_count").html('');
+                        }
+
+                    } else {
+                      //  waitingDialog.hide();
+                        alert('something went wrong with the operation');
+                    }
                 }
             });
         }

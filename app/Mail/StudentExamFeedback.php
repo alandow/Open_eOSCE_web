@@ -97,49 +97,97 @@ class StudentExamFeedback extends Mailable
     public function build()
     {
         // build a results table
-        $resultsTable = "<table class=\"table table-striped table-condensed\"><thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Result</th>
-                        <th>Value</th>";
-        if (json_decode($this->submission->exam_instance->email_parameters)->exclude_items_comments != '1') {
-
-            $resultsTable .= "<th > Comment</th >";
+       $exam = $this->submission->exam_instance;
+        // a sample results
+        $resultsTable = '<table class="table table-sm"><tr><th>Item</th><th>Result</th>';
+        if (!json_decode($exam->email_parameters)->exclude_items_comments == '1') {
+            $resultsTable .= '<th>Comments</th>';
         }
-        $resultsTable .= "</tr>
-                    </thead>
-                    <tbody>";
+        $resultsTable .= '</tr>';
+        foreach ($exam->exam_instance_items as $exam_instance_item) {
+            {
 
-        foreach ($this->submission->exam_instance->exam_instance_items as $exam_instance_item) {
-            if (($exam_instance_item->heading) == 1) {
+                if (!in_array($exam_instance_item->id, json_decode($exam->email_parameters)->exclude_items)) {
+                    if (($exam_instance_item->heading) == 1) {
+                        $resultsTable .= "<tr style=\"background-color: #7ab800\">
+                                <td colspan=\"4\" >
+                                    <h5> {$exam_instance_item->label}</h5>
+                                </td>
 
-                $resultsTable .= "<tr style = \"background-color: #7ab800\" ><td colspan = \"4\" ><h5 >{$exam_instance_item->label}</h5 ></td ></tr >";
+                            </tr>";
+                    } else {
+                        $resultsTable .= "<tr><td>" . $this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->item->label;
+                        if ($exam_instance_item->exclude_from_total == '1') {
+                            $resultsTable .= "(Formative)";
+                        }
+                        $resultsTable .= "</td><td>";
 
-            } else {
-                $resultsTable .= "<tr ><td >{$this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->item->label}";
+                        if ($this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem) {
+                            $resultsTable .= $this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem->label;
+                        } else {
+                            $resultsTable .= "(not assessed)";
+                        }
+                        $resultsTable .= "</td>";
+                    }
+
+                    if (!json_decode($exam->email_parameters)->exclude_items_comments == '1') {
+                        $resultsTable .= '<td>' . $this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->comments . '</td>';
+                    }
+                    $resultsTable .= "</tr>";
+                }
             }
-            if ($exam_instance_item->exclude_from_total == '1') {
-                $resultsTable .= "(Formative)";
-            }
-            $resultsTable .= "</td><td>";
-            if ($this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem) {
-                $resultsTable .= $this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem->label;
-            } else {
-                $resultsTable .= "(not shown)";
-            }
-            $resultsTable .= "</td><td>";
-            if ($this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem) {
-                $resultsTable .= $this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem->value;
-            } else {
-                $resultsTable .= "(not shown)";
-            }
-            $resultsTable .= "</td>";
-            if (json_decode($this->submission->exam_instance->email_parameters)->exclude_items_comments != '1') {
-                $resultsTable .= "<td>{$this->submission->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->comments}</td>";
-            }
-            $resultsTable .= "</td></tr>";
         }
-        $resultsTable .= "</tbody></table>";
+
+        $resultsTable .= "</table>";
+        if (!json_decode($exam->email_parameters)->exclude_overall_comments == '1') {
+            $resultsTable .= '<p><strong>Overall comments:</strong><p>' . $this->submission->comments. '</p>';
+        }
+
+
+//
+//        $resultsTable = "<table class=\"table table-striped table-condensed\"><thead>
+//                    <tr>
+//                        <th>Item</th>
+//                        <th>Result</th>
+//                        <th>Value</th>";
+//        if (json_decode($this->submission->exam_instance->email_parameters)->exclude_items_comments != '1') {
+//
+//            $resultsTable .= "<th > Comment</th >";
+//        }
+//        $resultsTable .= "</tr>
+//                    </thead>
+//                    <tbody>";
+//
+//        foreach ($this->submission->exam_instance->exam_instance_items as $exam_instance_item) {
+//            if (($exam_instance_item->heading) == 1) {
+//
+//                $resultsTable .= "<tr style = \"background-color: #7ab800\" ><td colspan = \"4\" ><h5 >{$exam_instance_item->label}</h5 ></td ></tr >";
+//
+//            } else {
+//                $resultsTable .= "<tr ><td >{$this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->item->label}";
+//            }
+//            if ($exam_instance_item->exclude_from_total == '1') {
+//                $resultsTable .= "(Formative)";
+//            }
+//            $resultsTable .= "</td><td>";
+//            if ($this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem) {
+//                $resultsTable .= $this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem->label;
+//            } else {
+//                $resultsTable .= "(not shown)";
+//            }
+//            $resultsTable .= "</td><td>";
+//            if ($this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem) {
+//                $resultsTable .= $this->submission->student_exam_submission_items->where('exam_instance_items_id', $exam_instance_item->id)->first()->selecteditem->value;
+//            } else {
+//                $resultsTable .= "(not shown)";
+//            }
+//            $resultsTable .= "</td>";
+//            if (json_decode($this->submission->exam_instance->email_parameters)->exclude_items_comments != '1') {
+//                $resultsTable .= "<td>{$this->submission->student_exam_submission_items->where('exam_instance_items_id',$exam_instance_item->id)->first()->comments}</td>";
+//            }
+//            $resultsTable .= "</td></tr>";
+//        }
+//        $resultsTable .= "</tbody></table>";
 
 //dd($this->offering);
         return $this->from('noreply@openeosce.org')->view('mailview.studentfeedbackemail')
