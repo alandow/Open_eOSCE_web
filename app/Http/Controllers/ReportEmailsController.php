@@ -18,7 +18,7 @@ class ReportEmailsController extends Controller
 
         $users = \App\User::all();
         $emails = \App\Emails_template::where('context', 'reports')->get();
-        return view('reports.emails_templates.list')
+        return view('examinstance.templates.emails_templates.list')
             ->with('emails', $emails)
             ->with('users', $users);
     }

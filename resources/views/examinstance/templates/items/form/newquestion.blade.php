@@ -12,9 +12,13 @@
     </div>
 </div>
 <div class="form-group row">
-    {!! Form::label('heading', 'This is a heading', ['class'=>'control-label  col-sm-2 text-left']) !!}
+    {{--{!! Form::label('heading', 'This is a heading', ['class'=>'control-label  col-sm-2 text-left']) !!}--}}
     <div class="col-sm-10">
-        {!! Form::checkbox('heading', 1, false, ['id'=>'heading_cb', 'onclick' => 'if($("#heading_cb").prop("checked")==true){$(".template_text").hide()}else{$(".template_text").show()}']) !!}
+        <div class="checkbox checkbox-success">
+            <input type="checkbox" name="heading" value="1" onclick='if($(this).prop("checked")==true){$(".template_text").hide()}else{$(".template_text").show()}'>
+            <label>This is a heading</label>
+        </div>
+        {{--{!! Form::checkbox('heading', 1, false, ['id'=>'heading_cb', 'onclick' => 'if($("#heading_cb").prop("checked")==true){$(".template_text").hide()}else{$(".template_text").show()}']) !!}--}}
     </div>
 </div>
 
@@ -40,28 +44,46 @@
         </table>
     </fieldset>
 </div>
-<div class="form-group row">
+<div class="form-group row template_text">
     <legend> <a style="padding-left: 10px" data-toggle="collapse" href="#newadvanced" aria-expanded="false">Advanced... </a></legend>
 </div>
 <div class="collapse" id="newadvanced" style="width: 100%">
 
     <div class="form-group row">
-        {!! Form::label('exclude_from_total', 'Exclude from total/formative', ['class'=>'control-label  col-sm-2 text-left']) !!}
         <div class="col-sm-10">
-            {!! Form::checkbox('exclude_from_total', 1, false) !!}
+            <div class="checkbox checkbox-info">
+                <input type="checkbox" name="exclude_from_total" value="1" >
+                <label>Exclude from total/formative</label>
+            </div>
         </div>
+        {{--{!! Form::label('exclude_from_total', 'Exclude from total/formative', ['class'=>'control-label  col-sm-2 text-left']) !!}--}}
+        {{--<div class="col-sm-10">--}}
+            {{--{!! Form::checkbox('exclude_from_total', 1, false) !!}--}}
+        {{--</div>--}}
     </div>
     <div class="form-group row">
-        {!! Form::label('no_comment', 'Hide comments input', ['class'=>'control-label  col-sm-2 text-left']) !!}
         <div class="col-sm-10">
-            {!! Form::checkbox('no_comment', 1, false, ['id'=>'no_comment', 'onchange'=>'if($("#no_comment").prop("checked")){
-                       $(".inlineeditablecomment").hide();
-                       $(".inlineeditablecommentlabel").hide();
-                   }else{
-                       $(".inlineeditablecomment").show();
-                       $(".inlineeditablecommentlabel").show();
-                   }']) !!}
+        <div class="checkbox checkbox-info">
+            <input type="checkbox" name="no_comment" value="1" onchange='if($("#no_comment").prop("checked")){
+            $(".inlineeditablecomment").hide();
+            $(".inlineeditablecommentlabel").hide();
+            }else{
+            $(".inlineeditablecomment").show();
+            $(".inlineeditablecommentlabel").show();
+            }'>
+            <label>Hide comments input</label>
         </div>
+        </div>
+        {{--{!! Form::label('no_comment', 'Hide comments input', ['class'=>'control-label  col-sm-2 text-left']) !!}--}}
+        {{--<div class="col-sm-10">--}}
+            {{--{!! Form::checkbox('no_comment', 1, false, ['id'=>'no_comment', 'onchange'=>'if($("#no_comment").prop("checked")){--}}
+                       {{--$(".inlineeditablecomment").hide();--}}
+                       {{--$(".inlineeditablecommentlabel").hide();--}}
+                   {{--}else{--}}
+                       {{--$(".inlineeditablecomment").show();--}}
+                       {{--$(".inlineeditablecommentlabel").show();--}}
+                   {{--}']) !!}--}}
+        {{--</div>--}}
     </div>
 </div>
 <div class="form-group">

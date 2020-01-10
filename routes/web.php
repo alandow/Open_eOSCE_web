@@ -122,6 +122,7 @@ Route::post('examtemplates/{id}/ajaxupdate', 'ExamInstanceController@templateaja
 
 Route::get('examitemtemplates', 'ExamInstanceItemController@templateindex')->name('examitemtemplates.index');
 Route::post('examitemtemplates/ajaxstore', 'ExamInstanceItemController@templatestore');
+
 Route::post('examitemtemplates/{id}/ajaxupdate', 'ExamInstanceItemController@update');
 
 
@@ -153,6 +154,8 @@ Route::get('examinationmedia/thumb/{id}', 'ExaminationInstancesMediaController@t
 Route::resource('report', 'ExamReportsController');
 // send a test email
 Route::post('report/{id}/sendtestemail', 'ExamReportsController@sendTestEmail');
+// send the actual feedback emails
+Route::post('report/{id}/sendallemails', 'ExamReportsController@sendAllEmails');
 // get a count of pending emails
 Route::get('report/{id}/getpendingemailcount', 'ExamReportsController@getPendingEmails');
 // download a report in Excel format

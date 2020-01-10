@@ -14,7 +14,9 @@
 <link rel="stylesheet" href="{{URL::asset('resources/assets/css/bootstrap-theme.min.css')}}">
 --}}
 <link rel="stylesheet" href="{{URL::asset('resources/assets/css/sb-admin.css')}}">
-<link rel="stylesheet" href="{{URL::asset('resources/assets/css/bootstrap-datepicker3.min.css')}}">
+{{--<link rel="stylesheet" href="{{URL::asset('resources/assets/css/bootstrap-datepicker3.min.css')}}">--}}
+
+
 <link rel="stylesheet" href="{{URL::asset('resources/assets/css/select2.css')}}">
 {{--<link rel="stylesheet" href="{{URL::asset('resources/assets/css/sortertheme.css')}}">--}}
 
@@ -23,11 +25,15 @@
 <link rel="stylesheet" href="{{URL::asset('resources/assets/css/font-awesome.min.css')}}">
 {{--Drag and drop re-odering- see https://github.com/bevacqua/dragula--}}
 <link rel="stylesheet" href="{{URL::asset('resources/assets/css/dragula.min.css')}}">
-
+<link rel="stylesheet" href="{{ URL::asset('resources/assets/css/awesome-bootstrap-checkbox.css') }}">
 <!-- JavaScripts -->
 <script src="{{ URL::asset('resources/assets/js/jquery-3.2.1.min.js') }}"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
 <script src="{{ URL::asset('resources/assets/js/bootstrap.min.js') }}"></script>
-<script src="{{ URL::asset('resources/assets/js/bootstrap-datepicker.min.js') }}"></script>
+{{--<script src="{{ URL::asset('resources/assets/js/bootstrap-datepicker.min.js') }}"></script>--}}
+
+
 <script src="{{ URL::asset('resources/assets/js/validator.min.js') }}"></script>
 <script src="{{ URL::asset('resources/assets/js/waiting.js') }}"></script>
 {{--<script src="{{ URL::asset('resources/assets/js/values.js') }}"></script>--}}

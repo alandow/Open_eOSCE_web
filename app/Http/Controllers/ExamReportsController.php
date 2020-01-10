@@ -16,6 +16,7 @@ use App\Student;
 use App\Student_exam_submission;
 use App\Student_exam_submission_item;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -110,7 +111,7 @@ class ExamReportsController extends Controller
 
         $sample_email_results .= "</table>";
         if (!json_decode($exam->email_parameters)->exclude_overall_comments == '1') {
-            $sample_email_results .= '<p><strong>Overall comments:</strong><p><i>' . $results[0]->submission->comments. '</i></p>';
+            $sample_email_results .= '<p><strong>Overall comments:</strong><p><i>' . $results[0]->submission->comments . '</i></p>';
         }
 
         // get max score here
@@ -579,14 +580,14 @@ class ExamReportsController extends Controller
         $exam_instance = Exam_instance::find($exam_instance_id);
         $sample_submission = $exam_instance->student_exam_submissions->first();
         $template = Emails_template::find($exam_instance->email_template_id);
-       //  dd($input);
+        //  dd($input);
         try {
             // construct mail to student
             $email = new StudentExamFeedback($sample_submission, $template);
 
             // dispatch to the job queue
             //dispatch(new SendStudentExamFeedback($email, $input['send_to_id'], Auth::user()->id, $template, $sample_submission->id, isset($input['testing']) ? true : false))->delay(now()->addMinutes(1));
-            dispatch(new SendStudentExamFeedback($email, $sample_submission->student->id, Auth::user()->id, $template, $sample_submission->id, true, $input['send_to_id'] )) ->onQueue('emails_'.$exam_instance_id);
+            dispatch(new SendStudentExamFeedback($email, $sample_submission->student->id, Auth::user()->id, $template, $sample_submission->id, true, $input['send_to_id']))->onQueue('emails_' . $exam_instance_id);
             //  dispatch(new SendStudentExamFeedback($email, Auth::user()->id, Auth::user()->id, $template, $submission->id))->delay(now()->addMinutes(10));;
             //   dispatch(new SendSetupEmail($email, Auth::user()->id, Auth::user()->id, $template, $id));
             // log success
@@ -602,6 +603,49 @@ class ExamReportsController extends Controller
                 'status' => '1',
             );
         }
+        return $response;
+    }
+
+    public function sendAllEmails($exam_instance_id, Request $request)
+    {
+        $input = $request::all();
+        $exam_instance = Exam_instance::find($exam_instance_id);
+        $submissions = $exam_instance->student_exam_submissions;
+        $template = Emails_template::find($exam_instance->email_template_id);
+        // work out the delay
+        // PLEASE NOTE! if you're using Amazon SQS queues the max delat time is 15 minutes!
+        //https://laravel.com/docs/5.8/queues#delayed-dispatching
+        $delay = now();
+        if (isset($input['delay'])) {
+// Carbon magic
+            $delay = Carbon::parse($input['delaydate']);
+            //   dd($input['delaydate'], $delay->toDateTimeString());
+        }
+
+        //   dd($delay->toDateTimeString());
+        $success = 0;
+        $message = '';
+        foreach ($submissions as $submission) {
+            try {
+                // construct mail to student
+                $email = new StudentExamFeedback($submission, $template);
+
+                // dispatch to the job queue
+                dispatch(new SendStudentExamFeedback($email, $submission->student->id, Auth::user()->id, $template, $submission->id, false, -1))
+                    ->onQueue('emails_' . $exam_instance_id)
+                    ->delay($delay);
+
+            } catch (\Exception $e) {
+                $success = 1;
+                $message .= "\r\n " . $e->getMessage();
+                // handle failure
+
+            }
+        }
+        $response = array(
+            'status' => $success,
+            'message' => $message
+        );
         return $response;
     }
 
@@ -619,9 +663,9 @@ class ExamReportsController extends Controller
             $email = new StudentExamFeedback($submission, $template);
 
             // dispatch to the job queue
-            dispatch(new SendStudentExamFeedback($email, $submission->student->id, Auth::user()->id, $template, $submission->id, isset($input['testing']) ? true : false))->delay(now()->addMinutes(10));
-            //  dispatch(new SendStudentExamFeedback($email, Auth::user()->id, Auth::user()->id, $template, $submission->id))->delay(now()->addMinutes(10));;
-            //   dispatch(new SendSetupEmail($email, Auth::user()->id, Auth::user()->id, $template, $id));
+            dispatch(new SendStudentExamFeedback($email, $submission->student->id, Auth::user()->id, $template, $submission->id, false, -1))
+                ->onQueue('emails_' . $submission->exam_instance->id);
+
             // log success
             $response = array(
                 'status' => '0',
@@ -633,16 +677,18 @@ class ExamReportsController extends Controller
             // handle failure
             $response = array(
                 'status' => '1',
+                'message' => $e->getMessage()
             );
         }
         return $response;
     }
 
-    public function getPendingEmails($exam_instance_id){
-        $queuecount = DB::table('jobs')->where('queue', '=', 'emails_'.$exam_instance_id)->count();
+    public function getPendingEmails($exam_instance_id)
+    {
+        $queuecount = DB::table('jobs')->where('queue', '=', 'emails_' . $exam_instance_id)->count();
         return array(
             'status' => '0',
-            'count'=> $queuecount
+            'count' => $queuecount
         );
     }
 

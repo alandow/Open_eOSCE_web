@@ -16,7 +16,7 @@
         "intervention/image": "^2.3",
         "kyslik/column-sortable": "^6.0",
         "laravel/framework": "^5.8.0",
-        "laravel/passport": "^4.0",
+        "laravel/passport": "^7.0",
         "laravel/tinker": "~1.0",
         "laravelcollective/html": "^5.4",
         "maatwebsite/excel": "^3.1",

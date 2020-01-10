@@ -10,20 +10,19 @@
 
         {{--@can('update_review_instance')--}}
             <button type="button" class="btn btn-primary" style="width: 220px" data-toggle="modal"
-                    data-target="#newdialog">
-                New Template <i
-                        class="fa fa-plus"></i>
+                    data-target="#newdialog"><i
+                        class="fa fa-plus"></i> New exam template
             </button>
         {{--@endcan--}}
         <p/>
     </li>
 
     <li>
-        <a href="{{ url('/examtemplates') }}"><i class="fa fa-fw fa-cog"></i>Templates</a>
+        <a href="{{ url('/examitemtemplates') }}"><i class="fa fa-fw fa-cog"></i>Item templates</a>
 
     </li>
     <li>
-        <a href="{{ url('/examemails') }}"><i class="fa fa-fw fa-cog"></i>Email templates</a>
+        <a href="{{ url('/reportemails') }}"><i class="fa fa-fw fa-cog"></i>Email templates</a>
 
     </li>
 @endsection
@@ -187,7 +186,7 @@
         <div style="width: 100%; "></div>
         <div style="float: left; padding-left: 10px">
             <button type="button" class="btn btn-primary" style="float: right" data-toggle="modal"
-                    data-target="#newdialog">New Template <i class="fa fa-plus" aria-hidden="true"></i></button>
+                    data-target="#newdialog"><i class="fa fa-plus" aria-hidden="true"></i> New exam template</button>
         </div>
         &nbsp;
         <table class="table table-striped">

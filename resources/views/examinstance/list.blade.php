@@ -2,15 +2,14 @@
 
 {{--Access control this--}}
 @section('menu')
-
     <li>
-        <a href="{{ url('/examtemplates') }}"><i class="fa fa-fw fa-cog"></i>Examination Templates</a>
+        <a href="{{ url('/examtemplates') }}"><i class="fa fa-fw fa-cog"></i>Examination templates</a>
     </li>
     <li>
-        <a href="{{ url('/examitemtemplates') }}"><i class="fa fa-fw fa-cog"></i>Item Templates</a>
+        <a href="{{ url('/examitemtemplates') }}"><i class="fa fa-fw fa-cog"></i>Item templates</a>
     </li>
     <li>
-        <a href="{{ url('/examemails') }}"><i class="fa fa-fw fa-cog"></i>Email templates</a>
+        <a href="{{ url('/reportemails') }}"><i class="fa fa-fw fa-cog"></i>Feedback email templates</a>
     </li>
 @endsection
 
@@ -171,7 +170,7 @@
         <div style="width: 100%; "></div>
         <div style="float: left; padding-left: 10px">
             <button type="button" class="btn btn-primary" style="float: right" data-toggle="modal"
-                    data-target="#newdialog">New Session <i class="fa fa-plus" aria-hidden="true"></i></button>
+                    data-target="#newdialog"><i class="fa fa-plus" aria-hidden="true"></i> New Session </button>
         </div>
         &nbsp;
         <table class="table table-striped">

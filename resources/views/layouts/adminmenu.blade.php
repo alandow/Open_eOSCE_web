@@ -53,7 +53,7 @@
                 @endif
                 <li>
                     <a href="{{ route('user.my') }}">
-                        My profile
+                        <i class="fa fa-user" aria-hidden="true"></i> My profile
                     </a>
                 </li>
                 <li><a href="{{ url('/logout') }}"><i class="fa fa-btn fa-sign-out"></i>Logout</a></li>

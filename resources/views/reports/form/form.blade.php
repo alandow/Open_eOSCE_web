@@ -23,5 +23,5 @@
 </div>
 
 <div class="form-group">
-    {!! Form::submit('Update', ['class'=>'btn btn-primary form-control']) !!}
+    {!! Form::button('<i class="fa fa-floppy-o" aria-hidden="true"></i> Update', ['type' => 'submit', 'class'=>'btn btn-primary form-control']) !!}
 </div>

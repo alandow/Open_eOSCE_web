@@ -196,7 +196,16 @@ class ExamInstanceItemController extends Controller
         }
         $input = $request::all();
         //dd($input);
-        return \App\Exam_instance_item::destroy($input['id']);
+
+        if( \App\Exam_instance_item::destroy($input['id'])>0){
+            return array(
+                'status' => 0,
+            );
+        }else{
+            return array(
+                'status' => 1,
+            );
+        }
     }
 
     // get items for this item as an array

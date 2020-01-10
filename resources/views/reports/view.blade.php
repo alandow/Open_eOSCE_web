@@ -7,8 +7,12 @@
 @section('content')
     {{--Some extra libraries for inline editing--}}
     <link rel="stylesheet" href="{{URL::asset('resources/assets/css/bootstrap-editable.css')}}">
+
     <link rel="stylesheet" href="{{URL::asset('resources/assets/css/Chart.css')}}">
-    <link rel="stylesheet" href="{{ URL::asset('resources/assets/css/awesome-bootstrap-checkbox.css') }}">
+
+
+    <link rel="stylesheet" href="{{URL::asset('resources/assets/css/bootstrap-datetimepicker.min.css')}}">
+    <script src="{{ URL::asset('resources/assets/js/bootstrap-datetimepicker.min.js') }}"></script>
     <script src="{{ URL::asset('resources/assets/js/bootstrap-editable.min.js') }}"></script>
     <script src="{{ URL::asset('resources/assets/js/Chart.bundle.js') }}"></script>
     <style>
@@ -16,6 +20,7 @@
         canvas {
             max-width: 200px;
         }
+
 
     </style>
 
@@ -29,9 +34,9 @@
         </legend>
         <div style="padding-left: 15px; padding-right: 15px; margin-top: 0">
             <ul class="nav nav-tabs" id="tabslabels">
-                <li class="active"><a data-toggle="tab" href='#resultstab'>Results</a></li>
-                <li><a data-toggle="tab" href='#statstab'>Statistics/Analysis</a></li>
-                <li><a data-toggle="tab" href='#feedbacktab'>Feedback</a></li>
+                <li class="active"><a data-toggle="tab" href='#resultstab'><i class="fa fa-table" aria-hidden="true"></i> Results</a></li>
+                <li><a data-toggle="tab" href='#statstab'><i class="fa fa-bar-chart" aria-hidden="true"></i> Statistics/Analysis</a></li>
+                <li><a data-toggle="tab" href='#feedbacktab'><i class="fa fa-comment" aria-hidden="true"></i> Feedback</a></li>
             </ul>
             <div class="tab-content">
                 <div id="resultstab" class="tab-pane active">
@@ -212,12 +217,14 @@
                         <div class="col-ms-12" style="padding-bottom: 5px">
                             <div class="btn-group">
                                 <button class="btn btn-primary" data-toggle="modal" data-target="#setupemaildialog"
-                                        style="margin-right: 5px">Set up email
+                                        style="margin-right: 5px"><i class="fa fa-cogs" aria-hidden="true"></i> Set up email
                                 </button>
                                 <button data-toggle="modal" data-target="#testemaildialog" class="btn btn-warning"
-                                        style="margin-right: 5px">Test email
+                                        style="margin-right: 5px"><i class="fa fa-stethoscope" aria-hidden="true"></i> Test email
                                 </button>
-                                <button class="btn btn-danger" onclick="testEmail()">Send feedback email</button>
+                                <button class="btn btn-danger" data-toggle="modal" data-target="#confirmemaildialog">
+                                    <i class="fa fa-paper-plane" aria-hidden="true"></i> Send feedback email
+                                </button>
                             </div>
                         </div>
 
@@ -226,8 +233,8 @@
                             <table class="table table-striped table-condensed">
                                 <tr>
                                     <th>Email template</th>
-                                    <td><a href="#" style="color: coral" data-toggle="modal"
-                                           data-target="#showfeedbackpreviewdialog">{{$exam->feedback_template->label}}</a>
+                                    <td><a href="#" style="color: coral; text-underline: coral" data-toggle="modal"
+                                           data-target="#showfeedbackpreviewdialog">{{$exam->feedback_template->label}} (click to preview)</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -330,7 +337,7 @@
     </div>
 
     <div id="testemaildialog" class="modal fade" role="dialog">
-        <div class="modal-dialog" >
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -349,7 +356,7 @@
                     </div>
 
                     <div class="form-group row">
-                        {!! Form::submit('Send test email', ['class'=>'btn btn-primary form-control']) !!}
+                        {!! Form::Button('<i class="fa fa-stethoscope" aria-hidden="true"></i> Send test email', ['type' => 'submit', 'class'=>'btn btn-warning form-control']) !!}
                     </div>
                     {!! Form::close() !!}
                 </div>
@@ -358,15 +365,44 @@
     </div>
 
     <div id="confirmemaildialog" class="modal fade" role="dialog">
-        <div class="modal-dialog" style="width: 300px">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Really send feedback?</h4>
+                    <h4 class="modal-title">Really send feedback to {{$results->count()}} students?</h4>
                 </div>
                 <div class="modal-body">
                     {!! Form::open()!!}
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <div class="checkbox checkbox-info">
+                                <input type="checkbox" value="1"
+                                       onchange="console.log(event);if(event.target.checked){$('#delayuntil').show();}else{$('#delayuntil').hide()}"
+                                       name="delay"><label>
+                                    Delay email
+                                </label>
 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row" id="delayuntil" style="display: none">
+                        <div class="col-sm-12">
+                            <label>
+                                Delay until:
+                            </label>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="input-append date form_datetime " >
+                                <input  type="text" name="delaydate"  id="datetimepicker">
+                                <span class="add-on"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group row">
+                        {!! Form::button('<i class="fa fa-paper-plane" aria-hidden="true"></i> Send feedback', ['type' => 'submit', 'class'=>'btn btn-danger form-control']) !!}
+                    </div>
                     {!! Form::close() !!}
                 </div>
             </div>
@@ -403,9 +439,21 @@
 
         //  var chartOptions =
         $(document).ready(function () {
-
+            checkPendingEmails();
             //select2
             $('select').select2();
+
+            // the datetimepicker
+            $(".form_datetime").datetimepicker({
+                format: "dd/mm/yyyy HH:ii P",
+                showMeridian: true,
+                autoclose: true,
+                startDate: new Date(),
+                initialDate: new Date(),
+                todayBtn: true
+            });
+
+            $("#datetimepicker").val(moment().format("DD/MM/YYYY hh:mm A"));
 
             // Set up tab persistence across reloads
             if (location.hash.substr(0, 2) == "#!") {
@@ -446,7 +494,7 @@
             });
 
             $('#testemaildialog').submit(function (event) {
-                console.log('sending setup email params')
+                console.log('sending test email')
                 // cancels the form submission
                 event.preventDefault();
                 $(this).modal('hide');
@@ -457,6 +505,20 @@
                 console.log(vars)
                 sendTestEmail(vars);
             });
+
+            $('#confirmemaildialog').submit(function (event) {
+                console.log('sending actual feedback params')
+                // cancels the form submission
+                event.preventDefault();
+                $(this).modal('hide');
+                //var vars = $("#edititemform").find("form").serializeArray();
+                var vars = $(this).find("form").serializeArray();
+                vars.push({name: 'id', value: '{{$exam->id}}'});
+                waitingDialog.show();
+                console.log(vars)
+                sendEmail(vars);
+            });
+
             // little delay to show charts. Doesn't work without it.
             setTimeout(function () {
                 showChart('myChart', [@for ($i = 0; $i<$maxscore+1; $i++)
@@ -492,7 +554,7 @@
             }, 500);
 
             // watch for jobs
-            var tid = setInterval(checkPendingEmails, 1000);
+                var tid = setInterval(checkPendingEmails, 10000);
         });
 
         function submitUpdateEmailSetupForm(vars) {
@@ -543,7 +605,8 @@
                 success: function (data) {
                     waitingDialog.hide();
                     if (data.status.toString() == "0") {
-                        location.reload();
+                      //  location.reload();
+                        checkPendingEmails()
                     } else {
                         waitingDialog.hide();
                         alert('something went wrong with the operation');
@@ -552,7 +615,31 @@
             });
         }
 
-        function checkPendingEmails(){
+        function sendEmail(vars) {
+            $.ajax({
+                url: '{!! URL::to('')!!}/report/{{$exam->id}}/sendallemails',
+                type: 'post',
+                data: vars,
+                error: function (jqXHR, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    alert(errorThrown);
+                },
+                success: function (data) {
+                    waitingDialog.hide();
+                    if (data.status.toString() == "0") {
+                        checkPendingEmails();
+                      //  location.reload();
+                    } else {
+                        waitingDialog.hide();
+                        alert('something went wrong with the operation');
+                    }
+                }
+            });
+        }
+
+
+
+        function checkPendingEmails() {
             $.ajax({
                 url: '{!! URL::to('')!!}/report/{{$exam->id}}/getpendingemailcount',
                 type: 'get',
@@ -561,17 +648,17 @@
                     alert(errorThrown);
                 },
                 success: function (data) {
-                //    waitingDialog.hide();
+                    //    waitingDialog.hide();
                     if (data.status.toString() == "0") {
-                        if(data.count>0){
-                            $("#pending_email_count").html(" ("+data.count+' emails pending...)')
+                        if (data.count > 0) {
+                            $("#pending_email_count").html(" (" + data.count + ' emails pending...)')
                         }
-                        else{
+                        else {
                             $("#pending_email_count").html('');
                         }
 
                     } else {
-                      //  waitingDialog.hide();
+                        //  waitingDialog.hide();
                         alert('something went wrong with the operation');
                     }
                 }
@@ -634,5 +721,6 @@
 
 
 @stop
+
 
 

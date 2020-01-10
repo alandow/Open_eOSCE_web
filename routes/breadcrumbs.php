@@ -79,7 +79,7 @@ Breadcrumbs::register('report.session', function ($breadcrumbs, $session) {
 });
 
 Breadcrumbs::register('reportemails.index', function ($breadcrumbs) {
-    $breadcrumbs->parent('report.index');
+    $breadcrumbs->parent('examtemplates.index');
     $breadcrumbs->push("Feedback email templates", route('reportemails.index' ));
 });
 

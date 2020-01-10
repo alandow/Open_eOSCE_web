@@ -1,18 +1,18 @@
-@extends('layouts.mainapp')
+@extends('layouts.nomenu')
 
 {{--Access control this--}}
-@section('menu')
+{{--@section('menu')--}}
 
-    <li>
-        <a href="{{ url('/examtemplates') }}"><i class="fa fa-fw fa-cog"></i>Examination Templates</a>
-    </li>
-    <li>
-        <a href="{{ url('/examitemtemplates') }}"><i class="fa fa-fw fa-cog"></i>Item Templates</a>
-    </li>
-    <li>
-        <a href="{{ url('/examemails') }}"><i class="fa fa-fw fa-cog"></i>Email templates</a>
-    </li>
-@endsection
+    {{--<li>--}}
+        {{--<a href="{{ url('/examtemplates') }}"><i class="fa fa-fw fa-cog"></i>Examination Templates</a>--}}
+    {{--</li>--}}
+    {{--<li>--}}
+        {{--<a href="{{ url('/examitemtemplates') }}"><i class="fa fa-fw fa-cog"></i>Item Templates</a>--}}
+    {{--</li>--}}
+    {{--<li>--}}
+        {{--<a href="{{ url('/examemails') }}"><i class="fa fa-fw fa-cog"></i>Email templates</a>--}}
+    {{--</li>--}}
+{{--@endsection--}}
 
 
 @section('content')
@@ -34,7 +34,8 @@
     </style>
     <script>
 
-        var currentid = -1;
+        var currentdeletingid = -1;
+        var currenteditingid = -1;
 
         $.fn.editable.defaults.mode = 'inline';
 
@@ -53,7 +54,7 @@
                         console.log(currenteditingid)
                         getItemDetails(currenteditingid);
                         break;
-                    case '#deleteitemdialog':
+                    case '#deletedialog':
                         currentdeleteroute = $(this).data('route');
                         console.log($(this).data('route'));
                         currentdeletingid = $(this).data('id');
@@ -72,6 +73,7 @@
                 // cancels the form submission
                 console.log('additemdialog submitted');
                 event.preventDefault();
+                //$(this).modal('hide');
                 //$(this).modal('hide');
                 var vars = $(this).find("form").serializeArray();
                 console.log(vars);
@@ -142,12 +144,13 @@
             });
 
             $('#deletedialog').submit(function (event) {
-                $('#deletedialog').modal('hide');
-                var vars = $("#deletedialog").find("form").serializeArray();
-                vars.push({name: 'id', value: currentid});
-                //vars.push({name: '_method', value: 'DELETE'});
                 // cancels the form submission
                 event.preventDefault();
+                $('#deletedialog').modal('hide');
+                var vars = $("#deletedialog").find("form").serializeArray();
+                vars.push({name: 'id', value: currentdeletingid});
+                //vars.push({name: '_method', value: 'DELETE'});
+
                 waitingDialog.show();
                 deleteItem(vars);
             });
@@ -433,7 +436,25 @@
             });
         }
 
-
+        function deleteItem(vars) {
+            $.ajax({
+                url: '{{URL::to('examitem/ajaxdestroy')}}',
+                type: 'post',
+                data: vars,
+                error: function (jqXHR, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    alert(errorThrown);
+                },
+                success: function (data) {
+                    waitingDialog.hide();
+                    if (data.status == "0") {
+                        location.reload(true);
+                    } else {
+                        alert('something went wrong with the delete');
+                    }
+                }
+            });
+        }
 
 
         /*
@@ -477,7 +498,7 @@
         <div style="width: 100%; "></div>
         <div style="float: left; padding-left: 10px">
             <button type="button" class="btn btn-primary" style="float: right" data-toggle="modal"
-                    data-target="#additemdialog">New Item <i class="fa fa-plus" aria-hidden="true"></i></button>
+                    data-target="#additemdialog"><i class="fa fa-plus" aria-hidden="true"></i> New Item</button>
         </div>
         &nbsp;
         <table class="table table-striped table-bordered" id="questionstbl">
@@ -493,9 +514,9 @@
             <th>
                 Criteria
             </th>
-            <th>
-                Advanced
-            </th>
+            {{--<th>--}}
+                {{--Advanced--}}
+            {{--</th>--}}
             <th>
             </th>
             </thead>
@@ -525,7 +546,7 @@
                         <td>
                             <a href="#" data-toggle="modal" data-id="{{$exam_instance_item->id}}"
                                data-route="examitem"
-                               data-target="#deleteitemdialog">
+                               data-target="#deletedialog">
                                 <i class="fa fa-times" style="font-size: 2em; color: red"
                                    aria-hidden="true"></i>
                             </a>
@@ -557,16 +578,16 @@
                                 @endforeach
                             </table>
                         </td>
-                        <td>
-                            <ul>
-                                {!! ((isset($exam_instance_item->show_if_answer_id)&&($exam_instance_item->show_if_answer_id>0))?'<li> Show if <strong>'.\App\Exam_instance_item::find($exam_instance_item->show_if_id)->label.'</strong> has answer <strong>'.\App\Exam_instance_item_item::find($exam_instance_item->show_if_answer_id)->label.'</strong></li>':'') !!}
-                                {!!((isset($exam_instance_item->exclude_from_total)?'<li>Excluded from total/is formative</li>':'')) !!}
-                                {!!((isset($exam_instance_item->no_comment)?'<li>Hide comments input</li>':'')) !!}
-                            </ul>
-                        </td>
+                        {{--<td>--}}
+                            {{--<ul>--}}
+                                {{--{!! ((isset($exam_instance_item->show_if_answer_id)&&($exam_instance_item->show_if_answer_id>0))?'<li> Show if <strong>'.\App\Exam_instance_item::find($exam_instance_item->show_if_id)->label.'</strong> has answer <strong>'.\App\Exam_instance_item_item::find($exam_instance_item->show_if_answer_id)->label.'</strong></li>':'') !!}--}}
+                                {{--{!!((isset($exam_instance_item->exclude_from_total)?'<li>Excluded from total/is formative</li>':'')) !!}--}}
+                                {{--{!!((isset($exam_instance_item->no_comment)?'<li>Hide comments input</li>':'')) !!}--}}
+                            {{--</ul>--}}
+                        {{--</td>--}}
                         <td><a href="#" data-toggle="modal" data-id="{{$exam_instance_item->id}}"
                                data-route="examitem"
-                               data-target="#deleteitemdialog">
+                               data-target="#deletedialog">
                                 <i class="fa fa-times" style="font-size: 2em; color: red"
                                    aria-hidden="true"></i>
                             </a></td>
@@ -626,7 +647,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Really delete exam?</h4>
+                    <h4 class="modal-title">Really delete template item?</h4>
                 </div>
                 <div class="modal-body">
                     {!! Form::open()!!}

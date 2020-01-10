@@ -12,5 +12,5 @@
     </div>
 </div>
 <div class="form-group">
-    {!! Form::submit($submitButtonText, ['class'=>'btn btn-primary form-control']) !!}
+    {!! Form::button('<i class="fa fa-floppy-o" aria-hidden="true"></i> '.$submitButtonText, ['type' => 'submit', 'class'=>'btn btn-primary form-control']) !!}
 </div>
